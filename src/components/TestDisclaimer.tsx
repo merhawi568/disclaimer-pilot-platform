@@ -120,7 +120,7 @@ export const TestDisclaimer = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setLoading(false);
-          setCurrentStep(3); // Go to reduction review
+          setCurrentStep(4); // Go directly to prompt selection, skip reduction review
           return 100;
         }
         return prev + 10;
@@ -415,7 +415,7 @@ export const TestDisclaimer = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-800 font-medium">Reduction Complete</p>
-                    <p className="text-green-600 text-sm">Found 11 matches across 3 documents</p>
+                    <p className="text-green-600 text-sm">Found {mockReductionResults.length} matches across {mockDocuments.length} documents</p>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => setCurrentStep(3)}>
                     <Eye className="mr-2 h-4 w-4" /> View Results

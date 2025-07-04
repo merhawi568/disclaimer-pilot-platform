@@ -431,20 +431,6 @@ export const TestDisclaimer = () => {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="border-2 border-blue-200 bg-blue-50 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-900">Future Returns Detection v2.1</h4>
-                  <p className="text-sm text-blue-700 mt-1">Identify any mention of future returns or performance expectations</p>
-                  <Badge className="mt-2 bg-blue-100 text-blue-800">94% Accuracy</Badge>
-                </div>
-                
-                <div className="border rounded-lg p-4 hover:bg-gray-50">
-                  <h4 className="font-medium">Investment Performance Classifier</h4>
-                  <p className="text-sm text-gray-600 mt-1">Detect language referring to past or future investment performance</p>
-                  <Badge variant="secondary" className="mt-2">89% Accuracy</Badge>
-                </div>
-              </div>
-
               <div>
                 <Label>Or write custom prompt</Label>
                 <Textarea 

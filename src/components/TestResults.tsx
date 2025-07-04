@@ -5,12 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, Filter, ThumbsUp, ThumbsDown, ZoomIn, FileText, Bot, User } from 'lucide-react';
 
 export const TestResults = () => {
   const [zoomedImage, setZoomedImage] = useState(null);
   const [feedback, setFeedback] = useState({});
+  const [feedbackDialog, setFeedbackDialog] = useState({ open: false, itemId: null });
+  const [feedbackComment, setFeedbackComment] = useState('');
 
   // Default test result data
   const testResult = {
@@ -116,6 +120,19 @@ export const TestResults = () => {
       ...prev,
       [itemId]: { type, reason }
     }));
+  };
+
+  const handleNegativeFeedback = (itemId) => {
+    setFeedbackDialog({ open: true, itemId });
+    setFeedbackComment('');
+  };
+
+  const submitNegativeFeedback = () => {
+    if (feedbackDialog.itemId && feedbackComment.trim()) {
+      handleFeedback(feedbackDialog.itemId, 'down', feedbackComment);
+      setFeedbackDialog({ open: false, itemId: null });
+      setFeedbackComment('');
+    }
   };
 
   const openImageZoom = (imageUrl) => {
@@ -271,28 +288,14 @@ export const TestResults = () => {
                                 <Button
                                   size="sm"
                                   variant={feedback[item.id]?.type === 'up' ? 'default' : 'outline'}
-                                  onClick={() => {
-                                    if (feedback[item.id]?.type === 'up') {
-                                      const reason = prompt('Please provide your feedback reason:');
-                                      if (reason) handleFeedback(item.id, 'up', reason);
-                                    } else {
-                                      handleFeedback(item.id, 'up');
-                                    }
-                                  }}
+                                  onClick={() => handleFeedback(item.id, 'up')}
                                 >
                                   <ThumbsUp className="h-3 w-3" />
                                 </Button>
                                 <Button
                                   size="sm"
                                   variant={feedback[item.id]?.type === 'down' ? 'destructive' : 'outline'}
-                                  onClick={() => {
-                                    if (feedback[item.id]?.type === 'down') {
-                                      const reason = prompt('Please provide your feedback reason:');
-                                      if (reason) handleFeedback(item.id, 'down', reason);
-                                    } else {
-                                      handleFeedback(item.id, 'down');
-                                    }
-                                  }}
+                                  onClick={() => handleNegativeFeedback(item.id)}
                                 >
                                   <ThumbsDown className="h-3 w-3" />
                                 </Button>
@@ -373,6 +376,37 @@ export const TestResults = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Negative Feedback Dialog */}
+      <AlertDialog open={feedbackDialog.open} onOpenChange={(open) => setFeedbackDialog({ open, itemId: null })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Provide Feedback</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please share your thoughts on why you disagree with this analysis. Your feedback helps improve our system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Enter your feedback here..."
+              value={feedbackComment}
+              onChange={(e) => setFeedbackComment(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setFeedbackDialog({ open: false, itemId: null })}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={submitNegativeFeedback}
+              disabled={!feedbackComment.trim()}
+            >
+              Submit Feedback
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, Filter, ThumbsUp, ThumbsDown, ZoomIn, FileText, Bot, User } from 'lucide-react';
 
@@ -15,6 +16,7 @@ export const TestResults = () => {
   const [feedback, setFeedback] = useState({});
   const [feedbackDialog, setFeedbackDialog] = useState({ open: false, itemId: null });
   const [feedbackComment, setFeedbackComment] = useState('');
+  const [filterType, setFilterType] = useState('all');
 
   // Default test result data
   const testResult = {
@@ -48,7 +50,8 @@ export const TestResults = () => {
       flagged: true,
       reason: "Contains future performance prediction without disclaimer",
       citation: "Our strategies aim to deliver strong returns over the long term, targeting annual growth between 8-12%",
-      confidenceScore: 94.2
+      confidenceScore: 94.2,
+      type: 'TP' // True Positive - flagged and should be flagged
     },
     {
       id: 2,
@@ -59,7 +62,8 @@ export const TestResults = () => {
       flagged: false,
       reason: "Contains appropriate disclaimer",
       citation: "Past performance does not guarantee future results. Investments may lose value.",
-      confidenceScore: 87.5
+      confidenceScore: 87.5,
+      type: 'TN' // True Negative - not flagged and shouldn't be flagged
     },
     {
       id: 3,
@@ -70,7 +74,8 @@ export const TestResults = () => {
       flagged: true,
       reason: "Guaranteed return statement without proper risk disclosure",
       citation: null,
-      confidenceScore: 96.8
+      confidenceScore: 96.8,
+      type: 'TP' // True Positive - flagged and should be flagged
     },
     {
       id: 4,
@@ -81,7 +86,20 @@ export const TestResults = () => {
       flagged: false,
       reason: null,
       citation: "Risk warning: Your capital is at risk when investing",
-      confidenceScore: null
+      confidenceScore: null,
+      type: 'FP' // False Positive - flagged but shouldn't be
+    },
+    {
+      id: 5,
+      documentName: "Marketing_Material.pdf", 
+      documentId: "DOC-005",
+      pageNumber: 2,
+      pageImage: "/api/placeholder/600/800",
+      flagged: false,
+      reason: "Missed risky language",
+      citation: "We guarantee exceptional returns for all investors",
+      confidenceScore: 45.2,
+      type: 'FN' // False Negative - not flagged but should be
     }
   ];
 
@@ -93,27 +111,50 @@ export const TestResults = () => {
       pattern: "Guaranteed Returns Language",
       documents: ["DOC-001", "DOC-003"],
       suggestion: "Replace with compliant language that includes appropriate risk disclaimers",
-      confidence: 96.5
+      confidence: 96.5,
+      type: 'TP'
     },
     {
       id: 2,
       recommendation: "Medium Risk - Review Suggested",
-      severity: "medium",
+      severity: "medium", 
       pattern: "Missing FDIC Disclaimer",
       documents: ["DOC-002"],
       suggestion: "Add FDIC insurance disclaimer for deposit products",
-      confidence: 82.3
+      confidence: 82.3,
+      type: 'TN'
     },
     {
       id: 3,
       recommendation: "Low Risk - Monitor",
       severity: "low",
-      pattern: "Vague Performance Claims",
+      pattern: "Vague Performance Claims", 
       documents: ["DOC-004"],
       suggestion: "Consider adding more specific risk warnings",
-      confidence: 71.8
+      confidence: 71.8,
+      type: 'FP'
+    },
+    {
+      id: 4,
+      recommendation: "Critical Issue - Missed Detection",
+      severity: "high",
+      pattern: "Undetected Guarantee Language",
+      documents: ["DOC-005"],
+      suggestion: "System failed to detect explicit guarantee statement - requires model retraining",
+      confidence: 45.2,
+      type: 'FN'
     }
   ];
+
+  const getFilteredAnalysisData = () => {
+    if (filterType === 'all') return mockAnalysisData;
+    return mockAnalysisData.filter(item => item.type === filterType);
+  };
+
+  const getFilteredAiAnalysis = () => {
+    if (filterType === 'all') return mockAiAnalysis;
+    return mockAiAnalysis.filter(item => item.type === filterType);
+  };
 
   const handleFeedback = (itemId, type, reason = '') => {
     setFeedback(prev => ({
@@ -147,10 +188,19 @@ export const TestResults = () => {
           <p className="text-gray-600 mt-1">Review and analyze your disclaimer testing results</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-48">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Results</SelectItem>
+              <SelectItem value="TP">True Positives (TP)</SelectItem>
+              <SelectItem value="TN">True Negatives (TN)</SelectItem>
+              <SelectItem value="FP">False Positives (FP)</SelectItem>
+              <SelectItem value="FN">False Negatives (FN)</SelectItem>
+            </SelectContent>
+          </Select>
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -227,6 +277,7 @@ export const TestResults = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
+                          <TableHead>Type</TableHead>
                           <TableHead>Document ID</TableHead>
                           <TableHead>Document Name</TableHead>
                           <TableHead>Page</TableHead>
@@ -239,8 +290,19 @@ export const TestResults = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {mockAnalysisData.map((item) => (
+                        {getFilteredAnalysisData().map((item) => (
                           <TableRow key={item.id}>
+                            <TableCell>
+                              <Badge 
+                                variant={
+                                  item.type === 'TP' ? 'default' :
+                                  item.type === 'TN' ? 'secondary' :
+                                  item.type === 'FP' ? 'destructive' : 'outline'
+                                }
+                              >
+                                {item.type}
+                              </Badge>
+                            </TableCell>
                             <TableCell className="font-mono text-sm">{item.documentId}</TableCell>
                             <TableCell className="font-medium">{item.documentName}</TableCell>
                             <TableCell>{item.pageNumber || '-'}</TableCell>
@@ -313,19 +375,30 @@ export const TestResults = () => {
                     <div className="text-sm text-gray-600 mb-4">
                       AI-powered analysis and recommendations based on compliance patterns
                     </div>
-                    {mockAiAnalysis.map((analysis) => (
+                    {getFilteredAiAnalysis().map((analysis) => (
                       <Card key={analysis.id} className="border-l-4 border-l-blue-500">
                         <CardContent className="pt-4">
                           <div className="flex items-start justify-between mb-2">
                             <h4 className="font-semibold text-lg">{analysis.recommendation}</h4>
-                            <Badge 
-                              variant={
-                                analysis.severity === 'high' ? 'destructive' : 
-                                analysis.severity === 'medium' ? 'secondary' : 'default'
-                              }
-                            >
-                              {analysis.severity.toUpperCase()}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge 
+                                variant={
+                                  analysis.type === 'TP' ? 'default' :
+                                  analysis.type === 'TN' ? 'secondary' :
+                                  analysis.type === 'FP' ? 'destructive' : 'outline'
+                                }
+                              >
+                                {analysis.type}
+                              </Badge>
+                              <Badge 
+                                variant={
+                                  analysis.severity === 'high' ? 'destructive' : 
+                                  analysis.severity === 'medium' ? 'secondary' : 'default'
+                                }
+                              >
+                                {analysis.severity.toUpperCase()}
+                              </Badge>
+                            </div>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <div>

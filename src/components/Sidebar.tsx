@@ -1,9 +1,7 @@
-
 import { cn } from '@/lib/utils';
 import { 
   LayoutGrid, 
   TestTube, 
-  Library, 
   FileText, 
   BookmarkPlus, 
   BarChart3, 
@@ -19,7 +17,6 @@ interface SidebarProps {
 const navigationItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid },
   { id: 'test-disclaimer', label: 'Test a Disclaimer', icon: TestTube },
-  { id: 'prompt-library', label: 'Prompt Library', icon: Library },
   { id: 'test-results', label: 'Test Results', icon: FileText },
   { id: 'saved-prompts', label: 'Saved Prompts', icon: BookmarkPlus },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },

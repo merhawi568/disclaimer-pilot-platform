@@ -7,9 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Filter, ThumbsUp, ThumbsDown, ZoomIn, FileText, Bot, User } from 'lucide-react';
+import { Download, Filter, ThumbsUp, ThumbsDown, ZoomIn, FileText, Bot, User, Save } from 'lucide-react';
 
 export const TestResults = () => {
   const [zoomedImage, setZoomedImage] = useState(null);
@@ -17,11 +19,15 @@ export const TestResults = () => {
   const [feedbackDialog, setFeedbackDialog] = useState({ open: false, itemId: null });
   const [feedbackComment, setFeedbackComment] = useState('');
   const [filterType, setFilterType] = useState('all');
+  const [savePromptDialog, setSavePromptDialog] = useState(false);
+  const [promptName, setPromptName] = useState('');
+  const [promptRemarks, setPromptRemarks] = useState('');
 
   // Default test result data
   const testResult = {
     id: 1,
     name: "Future Returns Detection Test",
+    prompt: "Identify any mention of future returns, performance expectations, or forward-looking statements about investment outcomes. Look for words like 'will', 'expect', 'aim', 'target', 'project', 'forecast'.",
     disclaimer: "Past performance does not guarantee future returns",
     date: "2024-01-15",
     accuracy: 94.2,
@@ -180,6 +186,34 @@ export const TestResults = () => {
     setZoomedImage(imageUrl);
   };
 
+  const handleSavePrompt = () => {
+    setSavePromptDialog(true);
+    setPromptName(testResult.name);
+    setPromptRemarks('');
+  };
+
+  const submitSavePrompt = () => {
+    if (promptName.trim()) {
+      // Here you would typically save to your backend/state management
+      console.log('Saving prompt:', {
+        name: promptName,
+        prompt: testResult.prompt,
+        disclaimer: testResult.disclaimer,
+        recall: testResult.recall,
+        specificity: testResult.specificity,
+        remarks: promptRemarks,
+        dateSaved: new Date().toISOString().split('T')[0]
+      });
+      
+      setSavePromptDialog(false);
+      setPromptName('');
+      setPromptRemarks('');
+      
+      // Show success message (you could use a toast here)
+      alert('Prompt saved successfully!');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -201,6 +235,10 @@ export const TestResults = () => {
               <SelectItem value="FN">False Negatives (FN)</SelectItem>
             </SelectContent>
           </Select>
+          <Button onClick={handleSavePrompt}>
+            <Save className="h-4 w-4 mr-2" />
+            Save Prompt
+          </Button>
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -480,6 +518,96 @@ export const TestResults = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Save Prompt Dialog */}
+      <Dialog open={savePromptDialog} onOpenChange={setSavePromptDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Save Prompt</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="prompt-name">Prompt Name</Label>
+              <Input 
+                id="prompt-name"
+                value={promptName}
+                onChange={(e) => setPromptName(e.target.value)}
+                placeholder="Enter a name for this prompt..."
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="prompt-text">Prompt (Read-only)</Label>
+              <Textarea 
+                id="prompt-text"
+                value={testResult.prompt}
+                readOnly
+                className="bg-gray-50 cursor-not-allowed"
+                rows={4}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="disclaimer-text">Disclaimer (Read-only)</Label>
+              <Input 
+                id="disclaimer-text"
+                value={testResult.disclaimer}
+                readOnly
+                className="bg-gray-50 cursor-not-allowed"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="recall-metric">Recall % (Read-only)</Label>
+                <Input 
+                  id="recall-metric"
+                  value={testResult.recall}
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <Label htmlFor="specificity-metric">Specificity % (Read-only)</Label>
+                <Input 
+                  id="specificity-metric"
+                  value={testResult.specificity}
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label htmlFor="prompt-remarks">Remarks</Label>
+              <Textarea 
+                id="prompt-remarks"
+                value={promptRemarks}
+                onChange={(e) => setPromptRemarks(e.target.value)}
+                placeholder="Enter any remarks or comments about this prompt..."
+                rows={3}
+              />
+            </div>
+            
+            <div className="flex space-x-2 pt-4">
+              <Button 
+                onClick={submitSavePrompt}
+                disabled={!promptName.trim()}
+                className="flex-1"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save Prompt
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setSavePromptDialog(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

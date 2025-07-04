@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Eye, Download, Filter } from 'lucide-react';
+import { DocumentViewer } from './DocumentViewer';
 
 export const TestResults = () => {
   const [selectedResult, setSelectedResult] = useState(null);
+  const [selectedDocument, setSelectedDocument] = useState(null);
 
   const testResults = [
     {
@@ -56,6 +57,34 @@ export const TestResults = () => {
       tn: 3,
       status: "In Progress"
     },
+  ];
+
+  const mockDocuments = [
+    {
+      name: "Q1_Brochure_US.pdf",
+      type: 'pdf' as const,
+      pages: 12,
+      matches: [
+        { page: 3, text: "Our strategies aim to deliver strong returns", highlighted: true },
+        { page: 7, text: "Historical data demonstrates consistent performance", highlighted: true }
+      ]
+    },
+    {
+      name: "LandingPage_EMEA.html",
+      type: 'image' as const,
+      pages: 1,
+      matches: [
+        { page: 1, text: "Guaranteed 15% Returns", highlighted: true }
+      ]
+    },
+    {
+      name: "Investment_Guide_APAC.pdf",
+      type: 'pdf' as const,
+      pages: 24,
+      matches: [
+        { page: 15, text: "Expected growth of 8% annually", highlighted: true }
+      ]
+    }
   ];
 
   return (
@@ -216,27 +245,34 @@ export const TestResults = () => {
                   
                   <TabsContent value="documents" className="space-y-4">
                     <div className="space-y-3">
-                      {[
-                        { name: "Q1_Brochure_US.pdf", pages: 12, matches: 3, status: "Reviewed" },
-                        { name: "LandingPage_EMEA.html", pages: 1, matches: 1, status: "Reviewed" },
-                        { name: "Investment_Guide_APAC.pdf", pages: 24, matches: 7, status: "Pending" },
-                      ].map((doc, index) => (
+                      {mockDocuments.map((doc, index) => (
                         <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                           <div>
                             <p className="font-medium">{doc.name}</p>
-                            <p className="text-sm text-gray-500">{doc.pages} pages • {doc.matches} matches</p>
+                            <p className="text-sm text-gray-500">{doc.pages} pages • {doc.matches?.length || 0} matches</p>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Badge variant={doc.status === 'Reviewed' ? 'default' : 'secondary'}>
-                              {doc.status}
-                            </Badge>
-                            <Button size="sm" variant="outline">
+                            <Badge variant="default">Reviewed</Badge>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => setSelectedDocument(doc)}
+                            >
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
                       ))}
                     </div>
+                    
+                    {selectedDocument && (
+                      <div className="mt-6">
+                        <DocumentViewer 
+                          document={selectedDocument}
+                          showHighlights={true}
+                        />
+                      </div>
+                    )}
                   </TabsContent>
                   
                   <TabsContent value="errors" className="space-y-4">

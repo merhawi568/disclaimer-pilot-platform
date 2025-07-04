@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { ChevronRight, ChevronLeft, Search, Filter, Play, Save } from 'lucide-react';
+import { DocumentViewer } from './DocumentViewer';
 
 export const TestDisclaimer = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -18,11 +18,22 @@ export const TestDisclaimer = () => {
 
   const disclaimers = [
     "Past performance does not guarantee future returns",
-    "Not FDIC insured",
+    "Not FDIC insured", 
     "No investment advice",
     "Risk of loss",
     "Hypothetical performance",
   ];
+
+  const mockDocument = {
+    name: "Q1_Brochure_US.pdf",
+    type: 'pdf' as const,
+    pages: 12,
+    currentPage: 3,
+    matches: [
+      { page: 3, text: "Our strategies aim to deliver strong returns", highlighted: true },
+      { page: 7, text: "Historical data demonstrates consistent performance", highlighted: true }
+    ]
+  };
 
   const mockDocuments = [
     { name: "Q1_Brochure_US.pdf", pages: 12, matches: 3 },
@@ -310,16 +321,11 @@ export const TestDisclaimer = () => {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="border rounded-lg p-4">
-                      <h4 className="font-medium mb-3">Document Viewer</h4>
-                      <div className="bg-gray-100 h-64 rounded flex items-center justify-center">
-                        <p className="text-gray-500">Q1_Brochure_US.pdf - Page 3</p>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-2 p-2 bg-yellow-50 rounded">
-                        "Our investment strategies aim to deliver <mark className="bg-yellow-200">strong returns</mark> over the long term..."
-                      </p>
-                    </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <DocumentViewer 
+                      document={mockDocument}
+                      showHighlights={true}
+                    />
                     
                     <div className="space-y-4">
                       <div className="border rounded-lg p-4">

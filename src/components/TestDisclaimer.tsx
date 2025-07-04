@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,6 +36,45 @@ export const TestDisclaimer = () => {
       { page: 7, text: "Historical data demonstrates consistent performance", highlighted: true }
     ]
   };
+
+  // Mock reduction results from database
+  const mockReductionResults = [
+    {
+      id: 1,
+      documentName: "Q1_Brochure_US.pdf",
+      pageNumber: 3,
+      screenshot: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=600&fit=crop",
+      matchText: "Our strategies aim to deliver strong returns over the long term"
+    },
+    {
+      id: 2,
+      documentName: "Q1_Brochure_US.pdf", 
+      pageNumber: 7,
+      screenshot: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop",
+      matchText: "Historical data demonstrates consistent performance"
+    },
+    {
+      id: 3,
+      documentName: "LandingPage_EMEA.html",
+      pageNumber: 1,
+      screenshot: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop",
+      matchText: "Guaranteed 15% annual returns on investment"
+    },
+    {
+      id: 4,
+      documentName: "Investment_Guide_APAC.pdf",
+      pageNumber: 12,
+      screenshot: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=800&h=600&fit=crop",
+      matchText: "Expected growth trajectory of 8-12% annually"
+    },
+    {
+      id: 5,
+      documentName: "Investment_Guide_APAC.pdf",
+      pageNumber: 18,
+      screenshot: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&h=600&fit=crop",
+      matchText: "Projected returns based on market analysis"
+    }
+  ];
 
   const mockDocuments = [
     { name: "Q1_Brochure_US.pdf", pages: 12, matches: 3 },
@@ -260,8 +298,8 @@ export const TestDisclaimer = () => {
                 <Button variant="outline" onClick={() => setCurrentStep(1)}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={simulateReduction} className="flex-1">
-                  Apply Filter & Start Reduction <Filter className="ml-2 h-4 w-4" />
+                <Button onClick={() => setCurrentStep(1)} className="flex-1">
+                  Apply Filter & Back to Start <Filter className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -279,7 +317,7 @@ export const TestDisclaimer = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-800 font-medium">Found 11 matches across 3 documents</p>
+                <p className="text-green-800 font-medium">Found {mockReductionResults.length} matches across {mockDocuments.length} documents</p>
                 <p className="text-green-600 text-sm">Ready for review</p>
               </div>
 
@@ -289,17 +327,34 @@ export const TestDisclaimer = () => {
                 </p>
               </div>
 
-              <div className="space-y-3">
-                {mockDocuments.map((doc, index) => (
-                  <div key={index} className="border rounded-lg p-4 hover:bg-gray-50">
-                    <div className="flex items-center justify-between">
+              <div className="space-y-4">
+                {mockReductionResults.map((result) => (
+                  <div key={result.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <div>
-                        <p className="font-medium">{doc.name}</p>
-                        <p className="text-sm text-gray-500">{doc.pages} pages • {doc.matches} matches</p>
+                        <div className="mb-3">
+                          <p className="font-medium text-gray-900">{result.documentName}</p>
+                          <p className="text-sm text-gray-500">Page {result.pageNumber} • ID: {result.id}</p>
+                        </div>
+                        <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-3">
+                          <p className="text-sm text-gray-800">
+                            "{result.matchText}"
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="secondary" className="cursor-pointer">✅ Correct</Badge>
+                          <Badge variant="destructive" className="cursor-pointer">❌ Incorrect</Badge>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="secondary">✅ 2 Correct</Badge>
-                        <Badge variant="destructive">❌ 1 Incorrect</Badge>
+                      <div className="relative">
+                        <img 
+                          src={result.screenshot} 
+                          alt={`Screenshot of ${result.documentName} page ${result.pageNumber}`}
+                          className="w-full h-48 object-cover rounded border border-gray-200"
+                        />
+                        <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                          Page {result.pageNumber}
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { ChevronRight, ChevronLeft, Search, Filter, Play, Save, Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ChevronRight, ChevronLeft, Search, Filter, Play, Save, Eye, ZoomIn, ZoomOut, X } from 'lucide-react';
 import { DocumentViewer } from './DocumentViewer';
 
 export const TestDisclaimer = () => {
@@ -17,6 +18,8 @@ export const TestDisclaimer = () => {
   const [loading, setLoading] = useState(false);
   const [testProgress, setTestProgress] = useState(0);
   const [reductionActive, setReductionActive] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageZoom, setImageZoom] = useState(100);
 
   const disclaimers = [
     "Past performance does not guarantee future returns",
@@ -117,7 +120,7 @@ export const TestDisclaimer = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setLoading(false);
-          setCurrentStep(4); // Go directly to prompt selection, skip reduction review
+          setCurrentStep(3); // Go to reduction review
           return 100;
         }
         return prev + 10;
@@ -140,6 +143,19 @@ export const TestDisclaimer = () => {
         return prev + 10;
       });
     }, 200);
+  };
+
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+    setImageZoom(100);
+  };
+
+  const handleZoomIn = () => {
+    setImageZoom(prev => Math.min(prev + 25, 200));
+  };
+
+  const handleZoomOut = () => {
+    setImageZoom(prev => Math.max(prev - 25, 50));
   };
 
   const renderStepContent = () => {
@@ -350,7 +366,8 @@ export const TestDisclaimer = () => {
                         <img 
                           src={result.screenshot} 
                           alt={`Screenshot of ${result.documentName} page ${result.pageNumber}`}
-                          className="w-full h-48 object-cover rounded border border-gray-200"
+                          className="w-full h-48 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => handleImageClick(result.screenshot)}
                         />
                         <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
                           Page {result.pageNumber}
@@ -689,6 +706,39 @@ export const TestDisclaimer = () => {
       </div>
 
       {renderStepContent()}
+
+      {/* Image Zoom Modal */}
+      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              Document Screenshot
+              <div className="flex items-center space-x-2">
+                <Button size="sm" variant="outline" onClick={handleZoomOut}>
+                  <ZoomOut className="h-4 w-4" />
+                </Button>
+                <span className="text-sm font-medium">{imageZoom}%</span>
+                <Button size="sm" variant="outline" onClick={handleZoomIn}>
+                  <ZoomIn className="h-4 w-4" />
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setSelectedImage(null)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="overflow-auto max-h-[calc(90vh-120px)]">
+            {selectedImage && (
+              <img 
+                src={selectedImage} 
+                alt="Zoomed document screenshot"
+                className="w-full h-auto"
+                style={{ transform: `scale(${imageZoom / 100})`, transformOrigin: 'top left' }}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

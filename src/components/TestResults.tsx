@@ -4,12 +4,17 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, Download, Filter } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Eye, Download, Filter, ThumbsUp, ThumbsDown, ZoomIn, ZoomOut, FileText } from 'lucide-react';
 import { DocumentViewer } from './DocumentViewer';
 
 export const TestResults = () => {
   const [selectedResult, setSelectedResult] = useState(null);
   const [selectedDocument, setSelectedDocument] = useState(null);
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState(null);
+  const [feedback, setFeedback] = useState({});
 
   const testResults = [
     {
@@ -25,6 +30,10 @@ export const TestResults = () => {
       fp: 2,
       fn: 1,
       tn: 3,
+      tpRate: 94.7,
+      tnRate: 60.0,
+      fpRate: 40.0,
+      fnRate: 5.3,
       status: "Completed"
     },
     {
@@ -59,33 +68,59 @@ export const TestResults = () => {
     },
   ];
 
-  const mockDocuments = [
+  const mockAnalysisData = [
     {
-      name: "Q1_Brochure_US.pdf",
-      type: 'pdf' as const,
-      pages: 12,
-      matches: [
-        { page: 3, text: "Our strategies aim to deliver strong returns", highlighted: true },
-        { page: 7, text: "Historical data demonstrates consistent performance", highlighted: true }
-      ]
+      id: 1,
+      documentName: "Q1_Brochure_US.pdf",
+      pageNumber: 3,
+      pageImage: "/api/placeholder/600/800",
+      flagged: true,
+      reason: "Contains future performance prediction without disclaimer",
+      citation: "Our strategies aim to deliver strong returns over the long term, targeting annual growth between 8-12%",
+      confidenceScore: 94.2
     },
     {
-      name: "LandingPage_EMEA.html",
-      type: 'image' as const,
-      pages: 1,
-      matches: [
-        { page: 1, text: "Guaranteed 15% Returns", highlighted: true }
-      ]
+      id: 2,
+      documentName: "Investment_Guide_APAC.pdf",
+      pageNumber: 15,
+      pageImage: "/api/placeholder/600/800",
+      flagged: false,
+      reason: "Contains appropriate disclaimer",
+      citation: "Past performance does not guarantee future results. Investments may lose value.",
+      confidenceScore: 87.5
     },
     {
-      name: "Investment_Guide_APAC.pdf",
-      type: 'pdf' as const,
-      pages: 24,
-      matches: [
-        { page: 15, text: "Expected growth of 8% annually", highlighted: true }
-      ]
+      id: 3,
+      documentName: "LandingPage_EMEA.html",
+      pageNumber: 1,
+      pageImage: "/api/placeholder/800/600",
+      flagged: true,
+      reason: "Guaranteed return statement without proper risk disclosure",
+      citation: null,
+      confidenceScore: 96.8
+    },
+    {
+      id: 4,
+      documentName: "Portfolio_Summary.pdf",
+      pageNumber: 7,
+      pageImage: null,
+      flagged: false,
+      reason: null,
+      citation: "Risk warning: Your capital is at risk when investing",
+      confidenceScore: null
     }
   ];
+
+  const handleFeedback = (itemId, type, reason = '') => {
+    setFeedback(prev => ({
+      ...prev,
+      [itemId]: { type, reason }
+    }));
+  };
+
+  const openImageZoom = (imageUrl) => {
+    setZoomedImage(imageUrl);
+  };
 
   return (
     <div className="space-y-6">
@@ -149,164 +184,183 @@ export const TestResults = () => {
             <Card>
               <CardHeader>
                 <CardTitle>{selectedResult.name}</CardTitle>
-                <p className="text-gray-600">Detailed analysis and metrics</p>
+                <p className="text-gray-600">Test metrics and performance analysis</p>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList>
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="metrics">Metrics</TabsTrigger>
-                    <TabsTrigger value="documents">Documents</TabsTrigger>
-                    <TabsTrigger value="errors">Errors</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="overview" className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <h4 className="font-medium">Test Information</h4>
-                        <div className="text-sm space-y-1">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Date:</span>
-                            <span>{selectedResult.date}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Documents:</span>
-                            <span>{selectedResult.documents}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Status:</span>
-                            <Badge variant={selectedResult.status === 'Completed' ? 'default' : 'secondary'}>
-                              {selectedResult.status}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <h4 className="font-medium">Disclaimer</h4>
-                        <p className="text-sm text-gray-600 italic">
-                          "{selectedResult.disclaimer}"
-                        </p>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="metrics" className="space-y-4">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-4">
+                <div className="space-y-6">
+                  {/* Metrics Overview */}
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Performance Rates</h4>
+                      <div className="space-y-3">
                         <div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm font-medium">Precision</span>
-                            <span className="text-sm font-bold">{selectedResult.precision}%</span>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm">True Positive Rate</span>
+                            <span className="text-sm font-bold">{selectedResult.tpRate}%</span>
                           </div>
-                          <Progress value={selectedResult.precision} className="h-2" />
+                          <Progress value={selectedResult.tpRate} className="h-2" />
                         </div>
-                        
                         <div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm font-medium">Recall</span>
-                            <span className="text-sm font-bold">{selectedResult.recall}%</span>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm">True Negative Rate</span>
+                            <span className="text-sm font-bold">{selectedResult.tnRate}%</span>
                           </div>
-                          <Progress value={selectedResult.recall} className="h-2" />
+                          <Progress value={selectedResult.tnRate} className="h-2" />
                         </div>
-                        
                         <div>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm font-medium">Accuracy</span>
-                            <span className="text-sm font-bold">{selectedResult.accuracy}%</span>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm">False Positive Rate</span>
+                            <span className="text-sm font-bold text-red-600">{selectedResult.fpRate}%</span>
                           </div>
-                          <Progress value={selectedResult.accuracy} className="h-2" />
+                          <Progress value={selectedResult.fpRate} className="h-2" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm">False Negative Rate</span>
+                            <span className="text-sm font-bold text-orange-600">{selectedResult.fnRate}%</span>
+                          </div>
+                          <Progress value={selectedResult.fnRate} className="h-2" />
                         </div>
                       </div>
-                      
-                      <div className="space-y-4">
-                        <h4 className="font-medium">Confusion Matrix</h4>
-                        <div className="grid grid-cols-2 gap-2 text-center">
-                          <div className="bg-green-100 p-4 rounded">
-                            <div className="text-2xl font-bold text-green-800">{selectedResult.tp}</div>
-                            <div className="text-xs text-green-600">True Positive</div>
-                          </div>
-                          <div className="bg-red-100 p-4 rounded">
-                            <div className="text-2xl font-bold text-red-800">{selectedResult.fp}</div>
-                            <div className="text-xs text-red-600">False Positive</div>
-                          </div>
-                          <div className="bg-orange-100 p-4 rounded">
-                            <div className="text-2xl font-bold text-orange-800">{selectedResult.fn}</div>
-                            <div className="text-xs text-orange-600">False Negative</div>
-                          </div>
-                          <div className="bg-blue-100 p-4 rounded">
-                            <div className="text-2xl font-bold text-blue-800">{selectedResult.tn}</div>
-                            <div className="text-xs text-blue-600">True Negative</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="documents" className="space-y-4">
-                    <div className="space-y-3">
-                      {mockDocuments.map((doc, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div>
-                            <p className="font-medium">{doc.name}</p>
-                            <p className="text-sm text-gray-500">{doc.pages} pages • {doc.matches?.length || 0} matches</p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="default">Reviewed</Badge>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => setSelectedDocument(doc)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
                     </div>
                     
-                    {selectedDocument && (
-                      <div className="mt-6">
-                        <DocumentViewer 
-                          document={selectedDocument}
-                          showHighlights={true}
-                        />
-                      </div>
-                    )}
-                  </TabsContent>
-                  
-                  <TabsContent value="errors" className="space-y-4">
                     <div className="space-y-4">
-                      <div>
-                        <h4 className="font-medium mb-3">False Positives ({selectedResult.fp})</h4>
-                        <div className="space-y-2">
-                          <div className="bg-red-50 border border-red-200 rounded p-3">
-                            <p className="text-sm">
-                              "Historical data demonstrates consistent performance across market cycles..."
-                            </p>
-                            <p className="text-xs text-red-600 mt-1">
-                              Document: Q1_Brochure_US.pdf, Page 7
-                            </p>
-                          </div>
+                      <h4 className="font-medium">Test Summary</h4>
+                      <div className="text-sm space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Total Documents:</span>
+                          <span className="font-medium">{selectedResult.documents}</span>
                         </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium mb-3">False Negatives ({selectedResult.fn})</h4>
-                        <div className="space-y-2">
-                          <div className="bg-orange-50 border border-orange-200 rounded p-3">
-                            <p className="text-sm">
-                              "Our strategy targets annual returns of 8-12% based on market projections..."
-                            </p>
-                            <p className="text-xs text-orange-600 mt-1">
-                              Document: Investment_Guide_APAC.pdf, Page 15
-                            </p>
-                          </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Date:</span>
+                          <span>{selectedResult.date}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Status:</span>
+                          <Badge variant={selectedResult.status === 'Completed' ? 'default' : 'secondary'}>
+                            {selectedResult.status}
+                          </Badge>
+                        </div>
+                        <div className="mt-4">
+                          <p className="text-gray-600 text-xs">Disclaimer:</p>
+                          <p className="text-sm italic">"{selectedResult.disclaimer}"</p>
                         </div>
                       </div>
                     </div>
-                  </TabsContent>
-                </Tabs>
+                  </div>
+
+                  {/* Analysis Button */}
+                  <div className="pt-4 border-t">
+                    <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full">
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Detailed Analysis
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-6xl h-[80vh]">
+                        <DialogHeader>
+                          <DialogTitle>Detailed Analysis - {selectedResult.name}</DialogTitle>
+                        </DialogHeader>
+                        <div className="overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Document</TableHead>
+                                <TableHead>Page</TableHead>
+                                <TableHead>Image</TableHead>
+                                <TableHead>Flagged</TableHead>
+                                <TableHead>Reason</TableHead>
+                                <TableHead>Citation</TableHead>
+                                <TableHead>Confidence</TableHead>
+                                <TableHead>Feedback</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {mockAnalysisData.map((item) => (
+                                <TableRow key={item.id}>
+                                  <TableCell className="font-medium">{item.documentName}</TableCell>
+                                  <TableCell>{item.pageNumber || '-'}</TableCell>
+                                  <TableCell>
+                                    {item.pageImage ? (
+                                      <div className="relative">
+                                        <img 
+                                          src={item.pageImage} 
+                                          alt={`Page ${item.pageNumber}`}
+                                          className="w-16 h-20 object-cover rounded cursor-pointer hover:opacity-80"
+                                          onClick={() => openImageZoom(item.pageImage)}
+                                        />
+                                        <ZoomIn className="absolute top-1 right-1 h-3 w-3 text-white bg-black bg-opacity-50 rounded" />
+                                      </div>
+                                    ) : (
+                                      <div className="w-16 h-20 bg-gray-100 rounded flex items-center justify-center">
+                                        <FileText className="h-6 w-6 text-gray-400" />
+                                      </div>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    {item.flagged !== null ? (
+                                      <Badge variant={item.flagged ? 'destructive' : 'default'}>
+                                        {item.flagged ? 'Yes' : 'No'}
+                                      </Badge>
+                                    ) : '-'}
+                                  </TableCell>
+                                  <TableCell className="max-w-48">
+                                    <div className="text-sm text-gray-600 truncate" title={item.reason}>
+                                      {item.reason || '-'}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="max-w-48">
+                                    <div className="text-sm text-gray-600 truncate" title={item.citation}>
+                                      {item.citation || '-'}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    {item.confidenceScore ? (
+                                      <span className="text-sm font-medium">{item.confidenceScore}%</span>
+                                    ) : '-'}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center space-x-1">
+                                      <Button
+                                        size="sm"
+                                        variant={feedback[item.id]?.type === 'up' ? 'default' : 'outline'}
+                                        onClick={() => {
+                                          if (feedback[item.id]?.type === 'up') {
+                                            const reason = prompt('Please provide your feedback reason:');
+                                            if (reason) handleFeedback(item.id, 'up', reason);
+                                          } else {
+                                            handleFeedback(item.id, 'up');
+                                          }
+                                        }}
+                                      >
+                                        <ThumbsUp className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant={feedback[item.id]?.type === 'down' ? 'destructive' : 'outline'}
+                                        onClick={() => {
+                                          if (feedback[item.id]?.type === 'down') {
+                                            const reason = prompt('Please provide your feedback reason:');
+                                            if (reason) handleFeedback(item.id, 'down', reason);
+                                          } else {
+                                            handleFeedback(item.id, 'down');
+                                          }
+                                        }}
+                                      >
+                                        <ThumbsDown className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ) : (
@@ -314,12 +368,30 @@ export const TestResults = () => {
               <CardContent className="text-center py-12">
                 <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Select a test result</h3>
-                <p className="text-gray-600">Choose a test from the list to view detailed analysis</p>
+                <p className="text-gray-600">Choose a test from the list to view detailed metrics and analysis</p>
               </CardContent>
             </Card>
           )}
         </div>
       </div>
+
+      {/* Image Zoom Modal */}
+      {zoomedImage && (
+        <Dialog open={!!zoomedImage} onOpenChange={() => setZoomedImage(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Document Page</DialogTitle>
+            </DialogHeader>
+            <div className="max-h-[70vh] overflow-auto">
+              <img 
+                src={zoomedImage} 
+                alt="Document page" 
+                className="w-full h-auto"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

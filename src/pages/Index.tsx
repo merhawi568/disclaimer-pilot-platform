@@ -17,7 +17,7 @@ const Index = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onNavigate={setActiveTab} />;
       case 'test-disclaimer':
         return <TestDisclaimer />;
       case 'prompt-library':
@@ -33,7 +33,7 @@ const Index = () => {
       case 'help':
         return <Help />;
       default:
-        return <Dashboard />;
+        return <Dashboard onNavigate={setActiveTab} />;
     }
   };
 

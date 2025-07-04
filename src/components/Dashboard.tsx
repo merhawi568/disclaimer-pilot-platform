@@ -1,11 +1,14 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, Users, FileText, AlertTriangle } from 'lucide-react';
+import { TrendingUp, Users, FileText, AlertTriangle, TestTube } from 'lucide-react';
 
-export const Dashboard = () => {
+interface DashboardProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export const Dashboard = ({ onNavigate }: DashboardProps) => {
   const recentTests = [
     { name: 'Investment Returns Disclaimer', accuracy: 94, status: 'Completed', date: '2 hours ago' },
     { name: 'FDIC Insurance Notice', accuracy: 87, status: 'In Progress', date: '5 hours ago' },
@@ -25,7 +28,10 @@ export const Dashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600 mt-1">Monitor your disclaimer testing performance</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
+        <Button 
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => onNavigate?.('test-disclaimer')}
+        >
           New Test
         </Button>
       </div>
@@ -132,15 +138,27 @@ export const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center"
+              onClick={() => onNavigate?.('test-disclaimer')}
+            >
               <TestTube className="h-6 w-6 mb-2" />
               Test New Disclaimer
             </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center"
+              onClick={() => onNavigate?.('test-results')}
+            >
               <FileText className="h-6 w-6 mb-2" />
               Review Results
             </Button>
-            <Button variant="outline" className="h-20 flex flex-col items-center justify-center">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center"
+              onClick={() => onNavigate?.('analytics')}
+            >
               <TrendingUp className="h-6 w-6 mb-2" />
               View Analytics
             </Button>

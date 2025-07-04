@@ -1,8 +1,10 @@
+
 import { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { TopBar } from '@/components/TopBar';
 import { Dashboard } from '@/components/Dashboard';
 import { TestDisclaimer } from '@/components/TestDisclaimer';
+import { PromptLibrary } from '@/components/PromptLibrary';
 import { TestResults } from '@/components/TestResults';
 import { SavedPrompts } from '@/components/SavedPrompts';
 import { Analytics } from '@/components/Analytics';
@@ -18,6 +20,8 @@ const Index = () => {
         return <Dashboard onNavigate={setActiveTab} />;
       case 'test-disclaimer':
         return <TestDisclaimer />;
+      case 'prompt-library':
+        return <PromptLibrary />;
       case 'test-results':
         return <TestResults />;
       case 'saved-prompts':

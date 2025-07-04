@@ -16,41 +16,35 @@ export const SavedPrompts = () => {
     {
       id: 1,
       name: "Future Returns Detection v2.2",
-      description: "Enhanced version with improved trigger words for future-oriented investment language",
       prompt: "Identify any mention of future returns, performance expectations, or forward-looking statements about investment outcomes. Look for words like 'will', 'expect', 'aim', 'target', 'project', 'forecast'.",
       disclaimer: "Past performance does not guarantee future returns",
-      tags: ["performance", "returns", "investment"],
-      accuracy: 94.2,
-      lastUsed: "2 hours ago",
-      createdDate: "2024-01-15",
-      versions: 3,
-      tests: 45
+      recall: 94.2,
+      specificity: 89.7,
+      version: "2.2",
+      dateSaved: "2024-01-15",
+      remarks: "Enhanced version with improved trigger words for future-oriented investment language"
     },
     {
       id: 2,
       name: "Insurance Status Checker v1.5",
-      description: "Detect mentions of insured or protected status without proper disclaimers",
       prompt: "Look for language suggesting deposits, investments, or products are insured, protected, or guaranteed by FDIC or government agencies when they are not.",
       disclaimer: "Not FDIC insured",
-      tags: ["FDIC", "insurance", "protection"],
-      accuracy: 89.7,
-      lastUsed: "5 hours ago",
-      createdDate: "2024-01-10",
-      versions: 2,
-      tests: 38
+      recall: 89.7,
+      specificity: 92.1,
+      version: "1.5",
+      dateSaved: "2024-01-10",
+      remarks: "Detect mentions of insured or protected status without proper disclaimers"
     },
     {
       id: 3,
       name: "Investment Advice Filter v3.1",
-      description: "Identify language that could be construed as investment advice",
       prompt: "Detect content that provides specific investment recommendations, tells users what they should do with investments, or gives personalized financial guidance.",
       disclaimer: "No investment advice",
-      tags: ["advice", "recommendations", "guidance"],
-      accuracy: 91.3,
-      lastUsed: "1 day ago",
-      createdDate: "2024-01-08",
-      versions: 4,
-      tests: 29
+      recall: 91.3,
+      specificity: 88.5,
+      version: "3.1",
+      dateSaved: "2024-01-08",
+      remarks: "Identify language that could be construed as investment advice"
     },
   ];
 
@@ -73,17 +67,11 @@ export const SavedPrompts = () => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <CardTitle className="text-lg">{prompt.name}</CardTitle>
-                  <p className="text-sm text-gray-600 mt-1">{prompt.description}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="outline">v{prompt.version}</Badge>
+                    <span className="text-sm text-gray-500">{prompt.dateSaved}</span>
+                  </div>
                 </div>
-                <Badge 
-                  className={
-                    prompt.accuracy >= 90 
-                      ? "bg-green-100 text-green-800" 
-                      : "bg-yellow-100 text-yellow-800"
-                  }
-                >
-                  {prompt.accuracy}%
-                </Badge>
               </div>
             </CardHeader>
             <CardContent>
@@ -100,22 +88,39 @@ export const SavedPrompts = () => {
                   <p className="text-sm text-gray-600 italic">"{prompt.disclaimer}"</p>
                 </div>
                 
-                <div className="flex flex-wrap gap-1">
-                  {prompt.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-1">Metrics</h4>
+                  <div className="flex gap-4 text-sm">
+                    <div className="flex items-center gap-1">
+                      <span className="text-gray-500">Recall:</span>
+                      <Badge 
+                        className={
+                          prompt.recall >= 90 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-yellow-100 text-yellow-800"
+                        }
+                      >
+                        {prompt.recall}%
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-gray-500">Specificity:</span>
+                      <Badge 
+                        className={
+                          prompt.specificity >= 90 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-yellow-100 text-yellow-800"
+                        }
+                      >
+                        {prompt.specificity}%
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Created: {prompt.createdDate}</span>
-                  <span>v{prompt.versions}</span>
-                </div>
-                
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Last used: {prompt.lastUsed}</span>
-                  <span>{prompt.tests} tests</span>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-1">Remarks</h4>
+                  <p className="text-sm text-gray-600">{prompt.remarks}</p>
                 </div>
                 
                 <div className="flex space-x-1 pt-2">
@@ -137,11 +142,6 @@ export const SavedPrompts = () => {
                         </div>
                         
                         <div>
-                          <Label htmlFor="edit-description">Description</Label>
-                          <Input id="edit-description" defaultValue={prompt.description} />
-                        </div>
-                        
-                        <div>
                           <Label htmlFor="edit-prompt">Prompt</Label>
                           <Textarea 
                             id="edit-prompt" 
@@ -151,11 +151,44 @@ export const SavedPrompts = () => {
                         </div>
                         
                         <div>
-                          <Label htmlFor="edit-tags">Tags</Label>
-                          <Input 
-                            id="edit-tags" 
-                            defaultValue={prompt.tags.join(', ')}
-                            placeholder="Separate with commas"
+                          <Label htmlFor="edit-disclaimer">Disclaimer</Label>
+                          <Input id="edit-disclaimer" defaultValue={prompt.disclaimer} />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="edit-recall">Recall (%)</Label>
+                            <Input 
+                              id="edit-recall" 
+                              type="number" 
+                              defaultValue={prompt.recall}
+                              min="0" 
+                              max="100"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="edit-specificity">Specificity (%)</Label>
+                            <Input 
+                              id="edit-specificity" 
+                              type="number" 
+                              defaultValue={prompt.specificity}
+                              min="0" 
+                              max="100"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="edit-version">Version</Label>
+                          <Input id="edit-version" defaultValue={prompt.version} />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="edit-remarks">Remarks</Label>
+                          <Textarea 
+                            id="edit-remarks" 
+                            defaultValue={prompt.remarks}
+                            rows={3}
                           />
                         </div>
                         

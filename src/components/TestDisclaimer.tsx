@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { ChevronRight, ChevronLeft, Search, Filter, Play, Save } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Search, Filter, Play, Save, Eye } from 'lucide-react';
 import { DocumentViewer } from './DocumentViewer';
 
 export const TestDisclaimer = () => {
@@ -78,7 +79,7 @@ export const TestDisclaimer = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setLoading(false);
-          setCurrentStep(3); // Go directly to reduction review
+          setCurrentStep(4); // Go directly to prompt selection, skip reduction review
           return 100;
         }
         return prev + 10;
@@ -273,13 +274,19 @@ export const TestDisclaimer = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <span className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
-                Reduction Review
+                Reduction Review (Optional)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-green-800 font-medium">Found 11 matches across 3 documents</p>
                 <p className="text-green-600 text-sm">Ready for review</p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-blue-800 text-sm">
+                  Review is optional - you can proceed directly to prompt selection or review the results first.
+                </p>
               </div>
 
               <div className="space-y-3">
@@ -314,8 +321,8 @@ export const TestDisclaimer = () => {
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
                 <Button variant="outline">Approve All</Button>
-                <Button onClick={handleNext} className="flex-1">
-                  Next: Prompt Selection <ChevronRight className="ml-2 h-4 w-4" />
+                <Button onClick={() => setCurrentStep(4)} className="flex-1">
+                  Skip to Prompt Selection <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -332,6 +339,18 @@ export const TestDisclaimer = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-800 font-medium">Reduction Complete</p>
+                    <p className="text-green-600 text-sm">Found 11 matches across 3 documents</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setCurrentStep(3)}>
+                    <Eye className="mr-2 h-4 w-4" /> View Results
+                  </Button>
+                </div>
+              </div>
+
               <div>
                 <Label>Search Prompt Library</Label>
                 <div className="relative">
@@ -363,7 +382,7 @@ export const TestDisclaimer = () => {
               </div>
 
               <div className="flex space-x-2">
-                <Button variant="outline" onClick={handleBack}>
+                <Button variant="outline" onClick={() => setCurrentStep(1)}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
                 <Button onClick={simulateTest} className="flex-1">

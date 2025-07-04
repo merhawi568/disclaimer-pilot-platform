@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -133,69 +132,87 @@ export const SavedPrompts = () => {
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
-                        <DialogTitle>Edit Prompt</DialogTitle>
+                        <DialogTitle>Edit Prompt - Remarks Only</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="edit-name">Name</Label>
-                          <Input id="edit-name" defaultValue={prompt.name} />
-                        </div>
-                        
-                        <div>
-                          <Label htmlFor="edit-prompt">Prompt</Label>
-                          <Textarea 
-                            id="edit-prompt" 
-                            defaultValue={prompt.prompt}
-                            rows={4}
+                          <Label htmlFor="edit-name">Name (Read-only)</Label>
+                          <Input 
+                            id="edit-name" 
+                            defaultValue={prompt.name} 
+                            readOnly 
+                            className="bg-gray-50 cursor-not-allowed"
                           />
                         </div>
                         
                         <div>
-                          <Label htmlFor="edit-disclaimer">Disclaimer</Label>
-                          <Input id="edit-disclaimer" defaultValue={prompt.disclaimer} />
+                          <Label htmlFor="edit-prompt">Prompt (Read-only)</Label>
+                          <Textarea 
+                            id="edit-prompt" 
+                            defaultValue={prompt.prompt}
+                            rows={4}
+                            readOnly
+                            className="bg-gray-50 cursor-not-allowed"
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="edit-disclaimer">Disclaimer (Read-only)</Label>
+                          <Input 
+                            id="edit-disclaimer" 
+                            defaultValue={prompt.disclaimer} 
+                            readOnly
+                            className="bg-gray-50 cursor-not-allowed"
+                          />
                         </div>
                         
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <Label htmlFor="edit-recall">Recall (%)</Label>
+                            <Label htmlFor="edit-recall">Recall % (Read-only)</Label>
                             <Input 
                               id="edit-recall" 
                               type="number" 
                               defaultValue={prompt.recall}
-                              min="0" 
-                              max="100"
+                              readOnly
+                              className="bg-gray-50 cursor-not-allowed"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="edit-specificity">Specificity (%)</Label>
+                            <Label htmlFor="edit-specificity">Specificity % (Read-only)</Label>
                             <Input 
                               id="edit-specificity" 
                               type="number" 
                               defaultValue={prompt.specificity}
-                              min="0" 
-                              max="100"
+                              readOnly
+                              className="bg-gray-50 cursor-not-allowed"
                             />
                           </div>
                         </div>
                         
                         <div>
-                          <Label htmlFor="edit-version">Version</Label>
-                          <Input id="edit-version" defaultValue={prompt.version} />
+                          <Label htmlFor="edit-version">Version (Read-only)</Label>
+                          <Input 
+                            id="edit-version" 
+                            defaultValue={prompt.version} 
+                            readOnly
+                            className="bg-gray-50 cursor-not-allowed"
+                          />
                         </div>
                         
                         <div>
-                          <Label htmlFor="edit-remarks">Remarks</Label>
+                          <Label htmlFor="edit-remarks">Remarks (Editable)</Label>
                           <Textarea 
                             id="edit-remarks" 
                             defaultValue={prompt.remarks}
                             rows={3}
+                            placeholder="Enter your remarks here..."
                           />
                         </div>
                         
                         <div className="flex space-x-2">
                           <Button className="flex-1">
                             <Save className="h-4 w-4 mr-2" />
-                            Save Changes
+                            Save Remarks
                           </Button>
                           <Button variant="outline">
                             <History className="h-4 w-4 mr-2" />

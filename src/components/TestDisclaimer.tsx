@@ -78,7 +78,7 @@ export const TestDisclaimer = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setLoading(false);
-          handleNext();
+          setCurrentStep(3); // Go directly to reduction review
           return 100;
         }
         return prev + 10;
@@ -159,7 +159,7 @@ export const TestDisclaimer = () => {
                       <Button onClick={simulateReduction} size="sm">
                         Start Reduction <Filter className="ml-2 h-4 w-4" />
                       </Button>
-                      <Button variant="outline" onClick={handleNext} size="sm">
+                      <Button variant="outline" onClick={() => setCurrentStep(2)} size="sm">
                         Configure Filter First
                       </Button>
                     </div>
@@ -172,7 +172,7 @@ export const TestDisclaimer = () => {
                 disabled={!selectedDisclaimer && !customDisclaimer}
                 className="w-full"
               >
-                {reductionActive ? 'Configure Filter (Optional)' : 'Next: Document Filter'} 
+                Next: Prompt Selection
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
@@ -256,11 +256,8 @@ export const TestDisclaimer = () => {
               </div>
 
               <div className="flex space-x-2">
-                <Button variant="outline" onClick={handleBack}>
+                <Button variant="outline" onClick={() => setCurrentStep(1)}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
-                </Button>
-                <Button variant="outline" onClick={() => setCurrentStep(3)}>
-                  Skip Filter - Use All Documents
                 </Button>
                 <Button onClick={simulateReduction} className="flex-1">
                   Apply Filter & Start Reduction <Filter className="ml-2 h-4 w-4" />

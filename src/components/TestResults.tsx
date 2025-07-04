@@ -1,18 +1,16 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Eye, Download, Filter, ThumbsUp, ThumbsDown, ZoomIn, ZoomOut, FileText } from 'lucide-react';
-import { DocumentViewer } from './DocumentViewer';
+import { Eye, Download, Filter, ThumbsUp, ThumbsDown, ZoomIn, FileText, Bot, User } from 'lucide-react';
 
 export const TestResults = () => {
   const [selectedResult, setSelectedResult] = useState(null);
-  const [selectedDocument, setSelectedDocument] = useState(null);
-  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState(null);
   const [feedback, setFeedback] = useState({});
 
@@ -25,6 +23,7 @@ export const TestResults = () => {
       accuracy: 94.2,
       precision: 89.1,
       recall: 94.8,
+      specificity: 85.3,
       documents: 24,
       tp: 18,
       fp: 2,
@@ -72,6 +71,7 @@ export const TestResults = () => {
     {
       id: 1,
       documentName: "Q1_Brochure_US.pdf",
+      documentId: "DOC-001",
       pageNumber: 3,
       pageImage: "/api/placeholder/600/800",
       flagged: true,
@@ -82,6 +82,7 @@ export const TestResults = () => {
     {
       id: 2,
       documentName: "Investment_Guide_APAC.pdf",
+      documentId: "DOC-002",
       pageNumber: 15,
       pageImage: "/api/placeholder/600/800",
       flagged: false,
@@ -92,6 +93,7 @@ export const TestResults = () => {
     {
       id: 3,
       documentName: "LandingPage_EMEA.html",
+      documentId: "DOC-003",
       pageNumber: 1,
       pageImage: "/api/placeholder/800/600",
       flagged: true,
@@ -102,12 +104,43 @@ export const TestResults = () => {
     {
       id: 4,
       documentName: "Portfolio_Summary.pdf",
+      documentId: "DOC-004",
       pageNumber: 7,
       pageImage: null,
       flagged: false,
       reason: null,
       citation: "Risk warning: Your capital is at risk when investing",
       confidenceScore: null
+    }
+  ];
+
+  const mockAiAnalysis = [
+    {
+      id: 1,
+      recommendation: "High Risk - Immediate Action Required",
+      severity: "high",
+      pattern: "Guaranteed Returns Language",
+      documents: ["DOC-001", "DOC-003"],
+      suggestion: "Replace with compliant language that includes appropriate risk disclaimers",
+      confidence: 96.5
+    },
+    {
+      id: 2,
+      recommendation: "Medium Risk - Review Suggested",
+      severity: "medium",
+      pattern: "Missing FDIC Disclaimer",
+      documents: ["DOC-002"],
+      suggestion: "Add FDIC insurance disclaimer for deposit products",
+      confidence: 82.3
+    },
+    {
+      id: 3,
+      recommendation: "Low Risk - Monitor",
+      severity: "low",
+      pattern: "Vague Performance Claims",
+      documents: ["DOC-004"],
+      suggestion: "Consider adding more specific risk warnings",
+      confidence: 71.8
     }
   ];
 
@@ -188,97 +221,83 @@ export const TestResults = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {/* Metrics Overview */}
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Performance Rates</h4>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm">True Positive Rate</span>
-                            <span className="text-sm font-bold">{selectedResult.tpRate}%</span>
-                          </div>
-                          <Progress value={selectedResult.tpRate} className="h-2" />
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm">True Negative Rate</span>
-                            <span className="text-sm font-bold">{selectedResult.tnRate}%</span>
-                          </div>
-                          <Progress value={selectedResult.tnRate} className="h-2" />
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm">False Positive Rate</span>
-                            <span className="text-sm font-bold text-red-600">{selectedResult.fpRate}%</span>
-                          </div>
-                          <Progress value={selectedResult.fpRate} className="h-2" />
-                        </div>
-                        <div>
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm">False Negative Rate</span>
-                            <span className="text-sm font-bold text-orange-600">{selectedResult.fnRate}%</span>
-                          </div>
-                          <Progress value={selectedResult.fnRate} className="h-2" />
-                        </div>
-                      </div>
+                  {/* Metrics Overview - Top Section */}
+                  <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">{selectedResult.recall}%</div>
+                      <div className="text-sm text-gray-600">Recall</div>
                     </div>
-                    
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Test Summary</h4>
-                      <div className="text-sm space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Total Documents:</span>
-                          <span className="font-medium">{selectedResult.documents}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Date:</span>
-                          <span>{selectedResult.date}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Status:</span>
-                          <Badge variant={selectedResult.status === 'Completed' ? 'default' : 'secondary'}>
-                            {selectedResult.status}
-                          </Badge>
-                        </div>
-                        <div className="mt-4">
-                          <p className="text-gray-600 text-xs">Disclaimer:</p>
-                          <p className="text-sm italic">"{selectedResult.disclaimer}"</p>
-                        </div>
-                      </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{selectedResult.specificity}%</div>
+                      <div className="text-sm text-gray-600">Specificity</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">{selectedResult.precision}%</div>
+                      <div className="text-sm text-gray-600">Precision</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">{selectedResult.accuracy}%</div>
+                      <div className="text-sm text-gray-600">Accuracy</div>
                     </div>
                   </div>
 
-                  {/* Analysis Button */}
-                  <div className="pt-4 border-t">
-                    <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-                      <DialogTrigger asChild>
-                        <Button className="w-full">
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Detailed Analysis
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-6xl h-[80vh]">
-                        <DialogHeader>
-                          <DialogTitle>Detailed Analysis - {selectedResult.name}</DialogTitle>
-                        </DialogHeader>
-                        <div className="overflow-hidden">
+                  <div className="grid grid-cols-4 gap-4 text-sm">
+                    <div className="text-center p-3 bg-green-50 rounded">
+                      <div className="text-lg font-semibold text-green-700">{selectedResult.tp}</div>
+                      <div className="text-green-600">True Positives</div>
+                    </div>
+                    <div className="text-center p-3 bg-blue-50 rounded">
+                      <div className="text-lg font-semibold text-blue-700">{selectedResult.tn}</div>
+                      <div className="text-blue-600">True Negatives</div>
+                    </div>
+                    <div className="text-center p-3 bg-red-50 rounded">
+                      <div className="text-lg font-semibold text-red-700">{selectedResult.fp}</div>
+                      <div className="text-red-600">False Positives</div>
+                    </div>
+                    <div className="text-center p-3 bg-orange-50 rounded">
+                      <div className="text-lg font-semibold text-orange-700">{selectedResult.fn}</div>
+                      <div className="text-orange-600">False Negatives</div>
+                    </div>
+                  </div>
+
+                  <div className="text-center p-2 bg-gray-100 rounded">
+                    <span className="text-lg font-semibold">Total Documents: {selectedResult.documents}</span>
+                  </div>
+
+                  {/* Analysis Section - Below Metrics */}
+                  <div className="border-t pt-6">
+                    <Tabs defaultValue="manual" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="manual" className="flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          Manual Analysis
+                        </TabsTrigger>
+                        <TabsTrigger value="ai" className="flex items-center gap-2">
+                          <Bot className="h-4 w-4" />
+                          AI Analyst
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="manual" className="mt-4">
+                        <div className="overflow-x-auto">
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead>Document</TableHead>
+                                <TableHead>Document ID</TableHead>
+                                <TableHead>Document Name</TableHead>
                                 <TableHead>Page</TableHead>
                                 <TableHead>Image</TableHead>
                                 <TableHead>Flagged</TableHead>
+                                <TableHead>Confidence</TableHead>
                                 <TableHead>Reason</TableHead>
                                 <TableHead>Citation</TableHead>
-                                <TableHead>Confidence</TableHead>
                                 <TableHead>Feedback</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {mockAnalysisData.map((item) => (
                                 <TableRow key={item.id}>
+                                  <TableCell className="font-mono text-sm">{item.documentId}</TableCell>
                                   <TableCell className="font-medium">{item.documentName}</TableCell>
                                   <TableCell>{item.pageNumber || '-'}</TableCell>
                                   <TableCell>
@@ -305,6 +324,11 @@ export const TestResults = () => {
                                       </Badge>
                                     ) : '-'}
                                   </TableCell>
+                                  <TableCell>
+                                    {item.confidenceScore ? (
+                                      <span className="text-sm font-medium">{item.confidenceScore}%</span>
+                                    ) : '-'}
+                                  </TableCell>
                                   <TableCell className="max-w-48">
                                     <div className="text-sm text-gray-600 truncate" title={item.reason}>
                                       {item.reason || '-'}
@@ -314,11 +338,6 @@ export const TestResults = () => {
                                     <div className="text-sm text-gray-600 truncate" title={item.citation}>
                                       {item.citation || '-'}
                                     </div>
-                                  </TableCell>
-                                  <TableCell>
-                                    {item.confidenceScore ? (
-                                      <span className="text-sm font-medium">{item.confidenceScore}%</span>
-                                    ) : '-'}
                                   </TableCell>
                                   <TableCell>
                                     <div className="flex items-center space-x-1">
@@ -357,8 +376,54 @@ export const TestResults = () => {
                             </TableBody>
                           </Table>
                         </div>
-                      </DialogContent>
-                    </Dialog>
+                      </TabsContent>
+                      
+                      <TabsContent value="ai" className="mt-4">
+                        <div className="space-y-4">
+                          <div className="text-sm text-gray-600 mb-4">
+                            AI-powered analysis and recommendations based on compliance patterns
+                          </div>
+                          {mockAiAnalysis.map((analysis) => (
+                            <Card key={analysis.id} className="border-l-4 border-l-blue-500">
+                              <CardContent className="pt-4">
+                                <div className="flex items-start justify-between mb-2">
+                                  <h4 className="font-semibold text-lg">{analysis.recommendation}</h4>
+                                  <Badge 
+                                    variant={
+                                      analysis.severity === 'high' ? 'destructive' : 
+                                      analysis.severity === 'medium' ? 'secondary' : 'default'
+                                    }
+                                  >
+                                    {analysis.severity.toUpperCase()}
+                                  </Badge>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <span className="font-medium text-gray-700">Pattern Detected:</span>
+                                    <p className="text-gray-600">{analysis.pattern}</p>
+                                  </div>
+                                  <div>
+                                    <span className="font-medium text-gray-700">Affected Documents:</span>
+                                    <p className="text-gray-600">{analysis.documents.join(', ')}</p>
+                                  </div>
+                                  <div className="md:col-span-2">
+                                    <span className="font-medium text-gray-700">Suggestion:</span>
+                                    <p className="text-gray-600">{analysis.suggestion}</p>
+                                  </div>
+                                  <div>
+                                    <span className="font-medium text-gray-700">AI Confidence:</span>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <Progress value={analysis.confidence} className="h-2 flex-1" />
+                                      <span className="text-sm font-medium">{analysis.confidence}%</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </div>
               </CardContent>

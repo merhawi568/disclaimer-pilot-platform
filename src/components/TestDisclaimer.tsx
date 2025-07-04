@@ -13,8 +13,10 @@ import { DocumentViewer } from './DocumentViewer';
 export const TestDisclaimer = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDisclaimer, setSelectedDisclaimer] = useState('');
+  const [customDisclaimer, setCustomDisclaimer] = useState('');
   const [loading, setLoading] = useState(false);
   const [testProgress, setTestProgress] = useState(0);
+  const [reductionActive, setReductionActive] = useState(false);
 
   const disclaimers = [
     "Past performance does not guarantee future returns",
@@ -53,6 +55,37 @@ export const TestDisclaimer = () => {
     }
   };
 
+  const handleDisclaimerChange = (disclaimer: string) => {
+    setSelectedDisclaimer(disclaimer);
+    if (disclaimer || customDisclaimer) {
+      setReductionActive(true);
+    }
+  };
+
+  const handleCustomDisclaimerChange = (value: string) => {
+    setCustomDisclaimer(value);
+    if (value || selectedDisclaimer) {
+      setReductionActive(true);
+    }
+  };
+
+  const simulateReduction = () => {
+    setLoading(true);
+    setTestProgress(0);
+    
+    const interval = setInterval(() => {
+      setTestProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setLoading(false);
+          handleNext();
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 200);
+  };
+
   const simulateTest = () => {
     setLoading(true);
     setTestProgress(0);
@@ -84,7 +117,7 @@ export const TestDisclaimer = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="disclaimer-select">Choose a disclaimer to test</Label>
-                <Select value={selectedDisclaimer} onValueChange={setSelectedDisclaimer}>
+                <Select value={selectedDisclaimer} onValueChange={handleDisclaimerChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select disclaimer..." />
                   </SelectTrigger>
@@ -100,15 +133,47 @@ export const TestDisclaimer = () => {
               
               <div>
                 <Label htmlFor="custom-disclaimer">Or add custom disclaimer</Label>
-                <Input placeholder="Enter your custom disclaimer text..." />
+                <Input 
+                  placeholder="Enter your custom disclaimer text..." 
+                  value={customDisclaimer}
+                  onChange={(e) => handleCustomDisclaimerChange(e.target.value)}
+                />
               </div>
+
+              {reductionActive && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-green-800 font-medium">Auto-Reduction Active</p>
+                    <Badge className="bg-green-100 text-green-800">All Documents</Badge>
+                  </div>
+                  <p className="text-green-600 text-sm mb-3">
+                    Searching across all available documents by default. Use document filter to narrow down.
+                  </p>
+                  {loading ? (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Reducing documents...</p>
+                      <Progress value={testProgress} className="mb-2" />
+                    </div>
+                  ) : (
+                    <div className="flex space-x-2">
+                      <Button onClick={simulateReduction} size="sm">
+                        Start Reduction <Filter className="ml-2 h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" onClick={handleNext} size="sm">
+                        Configure Filter First
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <Button 
                 onClick={handleNext} 
-                disabled={!selectedDisclaimer}
+                disabled={!selectedDisclaimer && !customDisclaimer}
                 className="w-full"
               >
-                Next: Document Filter <ChevronRight className="ml-2 h-4 w-4" />
+                {reductionActive ? 'Configure Filter (Optional)' : 'Next: Document Filter'} 
+                <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
           </Card>
@@ -120,10 +185,16 @@ export const TestDisclaimer = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <span className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
-                Document Filter
+                Document Filter (Optional)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <p className="text-blue-800 text-sm">
+                  By default, all documents are included. Use filters below to narrow down the search.
+                </p>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Region</Label>
@@ -188,8 +259,11 @@ export const TestDisclaimer = () => {
                 <Button variant="outline" onClick={handleBack}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={handleNext} className="flex-1">
-                  Start Reduction <Filter className="ml-2 h-4 w-4" />
+                <Button variant="outline" onClick={() => setCurrentStep(3)}>
+                  Skip Filter - Use All Documents
+                </Button>
+                <Button onClick={simulateReduction} className="flex-1">
+                  Apply Filter & Start Reduction <Filter className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </CardContent>

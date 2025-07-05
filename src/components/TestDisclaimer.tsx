@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,9 +11,17 @@ import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, Search, Plus, ArrowLeft, ArrowRight, Play } from 'lucide-react';
 import { TestResults } from './TestResults';
 
+interface Document {
+  id: number;
+  name: string;
+  size: number;
+  type: string;
+  uploadedAt: string;
+}
+
 export const TestDisclaimer = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [documents, setDocuments] = useState([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [testName, setTestName] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState('');
   const [customPrompt, setCustomPrompt] = useState('');
@@ -50,9 +57,9 @@ export const TestDisclaimer = () => {
     }
   ];
 
-  const handleFileUpload = (event) => {
-    const files = Array.from(event.target.files);
-    const newDocuments = files.map((file, index) => ({
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const newDocuments: Document[] = files.map((file: File, index: number) => ({
       id: documents.length + index + 1,
       name: file.name,
       size: file.size,

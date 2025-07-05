@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { TopBar } from '@/components/TopBar';
@@ -5,6 +6,7 @@ import { Dashboard } from '@/components/Dashboard';
 import { TestDisclaimer } from '@/components/TestDisclaimer';
 import { PromptLibrary } from '@/components/PromptLibrary';
 import { TestResults } from '@/components/TestResults';
+import { Review } from '@/components/Review';
 import { SavedPrompts } from '@/components/SavedPrompts';
 import { Admin } from '@/components/Admin';
 import { Help } from '@/components/Help';
@@ -22,6 +24,8 @@ const Index = () => {
         return <PromptLibrary />;
       case 'test-results':
         return <TestResults />;
+      case 'review':
+        return <Review />;
       case 'saved-prompts':
         return <SavedPrompts />;
       case 'admin':

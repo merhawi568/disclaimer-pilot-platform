@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -22,7 +23,8 @@ import {
   AlertCircle,
   BarChart3,
   Bot,
-  User
+  User,
+  Send
 } from 'lucide-react';
 
 export const TestDisclaimer = () => {
@@ -42,6 +44,7 @@ export const TestDisclaimer = () => {
     { id: 2, documentName: "Investment_Guide_APAC.pdf", flagged: false, reason: "Contains appropriate disclaimer" },
     { id: 3, documentName: "LandingPage_EMEA.html", flagged: true, reason: "Guaranteed return statement without proper risk disclosure" }
   ]);
+  const [selectedForReview, setSelectedForReview] = useState([]);
   const [savePromptDialog, setSavePromptDialog] = useState(false);
   const [promptName, setPromptName] = useState('');
   const [promptRemarks, setPromptRemarks] = useState('');
@@ -113,6 +116,48 @@ export const TestDisclaimer = () => {
       
       alert('Prompt saved successfully!');
     }
+  };
+
+  const handleCheckboxChange = (itemId, checked) => {
+    if (checked) {
+      setSelectedForReview([...selectedForReview, itemId]);
+    } else {
+      setSelectedForReview(selectedForReview.filter(id => id !== itemId));
+    }
+  };
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedForReview(analysisData.map(item => item.id));
+    } else {
+      setSelectedForReview([]);
+    }
+  };
+
+  const handleSubmitForReview = () => {
+    if (selectedForReview.length === 0) {
+      alert('Please select at least one item to submit for review.');
+      return;
+    }
+
+    const reviewData = {
+      prompt: formData.prompt,
+      disclaimer: formData.disclaimer,
+      selectedItems: analysisData.filter(item => selectedForReview.includes(item.id)),
+      submittedAt: new Date().toISOString(),
+      recall: mockResults.recall,
+      specificity: mockResults.specificity
+    };
+
+    console.log('Submitting for review:', reviewData);
+    
+    // Store in localStorage for the Review component to access
+    const existingReviews = JSON.parse(localStorage.getItem('reviewItems') || '[]');
+    existingReviews.push(reviewData);
+    localStorage.setItem('reviewItems', JSON.stringify(existingReviews));
+    
+    alert(`${selectedForReview.length} items submitted for review successfully!`);
+    setSelectedForReview([]);
   };
 
   const renderStep1 = () => (
@@ -206,29 +251,55 @@ export const TestDisclaimer = () => {
           <p className="text-gray-600">Review the analysis results and flagged documents</p>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Document Name</TableHead>
-                  <TableHead>Flagged</TableHead>
-                  <TableHead>Reason</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {analysisData.map(item => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.documentName}</TableCell>
-                    <TableCell>
-                      <Badge variant={item.flagged ? "destructive" : "secondary"}>
-                        {item.flagged ? "Yes" : "No"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{item.reason}</TableCell>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <Checkbox
+                id="select-all"
+                checked={selectedForReview.length === analysisData.length}
+                onCheckedChange={handleSelectAll}
+              />
+              <Label htmlFor="select-all" className="font-medium">
+                Select All ({analysisData.length} items)
+              </Label>
+              {selectedForReview.length > 0 && (
+                <Button onClick={handleSubmitForReview} variant="outline" size="sm">
+                  <Send className="h-4 w-4 mr-2" />
+                  Submit for Review ({selectedForReview.length})
+                </Button>
+              )}
+            </div>
+            
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">Select</TableHead>
+                    <TableHead>Document Name</TableHead>
+                    <TableHead>Flagged</TableHead>
+                    <TableHead>Reason</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {analysisData.map(item => (
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedForReview.includes(item.id)}
+                          onCheckedChange={(checked) => handleCheckboxChange(item.id, checked)}
+                        />
+                      </TableCell>
+                      <TableCell>{item.documentName}</TableCell>
+                      <TableCell>
+                        <Badge variant={item.flagged ? "destructive" : "secondary"}>
+                          {item.flagged ? "Yes" : "No"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{item.reason}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </CardContent>
       </Card>

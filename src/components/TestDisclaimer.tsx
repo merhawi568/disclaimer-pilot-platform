@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -22,7 +23,8 @@ import {
   AlertCircle,
   BarChart3,
   Bot,
-  User
+  User,
+  Send
 } from 'lucide-react';
 
 export const TestDisclaimer = () => {
@@ -42,6 +44,7 @@ export const TestDisclaimer = () => {
     { id: 2, documentName: "Investment_Guide_APAC.pdf", flagged: false, reason: "Contains appropriate disclaimer" },
     { id: 3, documentName: "LandingPage_EMEA.html", flagged: true, reason: "Guaranteed return statement without proper risk disclosure" }
   ]);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [savePromptDialog, setSavePromptDialog] = useState(false);
   const [promptName, setPromptName] = useState('');
   const [promptRemarks, setPromptRemarks] = useState('');
@@ -91,6 +94,28 @@ export const TestDisclaimer = () => {
     setPromptName('');
     setPromptRemarks('');
     setPromptStatus('');
+  };
+
+  const handleSelectItem = (itemId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedItems(prev => [...prev, itemId]);
+    } else {
+      setSelectedItems(prev => prev.filter(id => id !== itemId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedItems(analysisData.map(item => item.id));
+    } else {
+      setSelectedItems([]);
+    }
+  };
+
+  const handleSubmitForReview = () => {
+    const selectedResults = analysisData.filter(item => selectedItems.includes(item.id));
+    console.log('Submitting for review:', selectedResults);
+    alert(`${selectedItems.length} items submitted for review!`);
   };
 
   const submitSavePrompt = () => {
@@ -206,29 +231,59 @@ export const TestDisclaimer = () => {
           <p className="text-gray-600">Review the analysis results and flagged documents</p>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Document Name</TableHead>
-                  <TableHead>Flagged</TableHead>
-                  <TableHead>Reason</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {analysisData.map(item => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.documentName}</TableCell>
-                    <TableCell>
-                      <Badge variant={item.flagged ? "destructive" : "secondary"}>
-                        {item.flagged ? "Yes" : "No"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{item.reason}</TableCell>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="select-all"
+                  checked={selectedItems.length === analysisData.length && analysisData.length > 0}
+                  onCheckedChange={handleSelectAll}
+                />
+                <Label htmlFor="select-all" className="text-sm font-medium">
+                  Select All ({selectedItems.length} of {analysisData.length} selected)
+                </Label>
+              </div>
+              <Button 
+                onClick={handleSubmitForReview}
+                disabled={selectedItems.length === 0}
+                className="flex items-center gap-2"
+              >
+                <Send className="h-4 w-4" />
+                Submit for Review ({selectedItems.length})
+              </Button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">Select</TableHead>
+                    <TableHead>Document Name</TableHead>
+                    <TableHead>Flagged</TableHead>
+                    <TableHead>Reason</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {analysisData.map(item => (
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedItems.includes(item.id)}
+                          onCheckedChange={(checked) => handleSelectItem(item.id, checked as boolean)}
+                        />
+                      </TableCell>
+                      <TableCell>{item.documentName}</TableCell>
+                      <TableCell>
+                        <Badge variant={item.flagged ? "destructive" : "secondary"}>
+                          {item.flagged ? "Yes" : "No"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{item.reason}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </CardContent>
       </Card>

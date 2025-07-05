@@ -1,10 +1,12 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DocumentViewer } from '@/components/DocumentViewer';
-import { CheckCircle, XCircle, Clock, MessageSquare, FileText, AlertTriangle } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, MessageSquare, FileText, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface ReviewItem {
   id: string;
@@ -19,6 +21,16 @@ interface ReviewItem {
   citation: string;
   confidenceScore: number;
   classification: 'TP' | 'TN' | 'FP' | 'FN';
+}
+
+interface GroupedItems {
+  key: string;
+  prompt: string;
+  disclaimer: string;
+  items: ReviewItem[];
+  pendingCount: number;
+  approvedCount: number;
+  rejectedCount: number;
 }
 
 export const Review = () => {
@@ -38,8 +50,8 @@ export const Review = () => {
     },
     {
       id: '2',
-      prompt: 'Investment risk warning validation',
-      disclaimer: 'Investment involves risk. You may lose some or all of your invested capital.',
+      prompt: 'Test prompt for financial disclaimer',
+      disclaimer: 'Past performance does not guarantee future results. All investments carry risk of loss.',
       documentName: 'Landing_Page_Screenshot.png',
       pageNumber: 1,
       result: 'Fail - Missing required risk statements',
@@ -51,8 +63,8 @@ export const Review = () => {
     },
     {
       id: '3',
-      prompt: 'General disclaimer compliance check',
-      disclaimer: 'This information is for educational purposes only and should not be considered as investment advice.',
+      prompt: 'Investment risk warning validation',
+      disclaimer: 'Investment involves risk. You may lose some or all of your invested capital.',
       documentName: 'Advisory_Services_Brochure.pdf',
       pageNumber: 1,
       result: 'Pass - All requirements satisfied',
@@ -63,10 +75,50 @@ export const Review = () => {
       confidenceScore: 0.95,
       classification: 'TN'
     },
+    {
+      id: '4',
+      prompt: 'Investment risk warning validation',
+      disclaimer: 'Investment involves risk. You may lose some or all of your invested capital.',
+      documentName: 'Marketing_Flyer.pdf',
+      pageNumber: 2,
+      result: 'Fail - Incomplete risk disclosure',
+      status: 'rejected',
+      submittedDate: '2024-01-12',
+      comments: 'Risk disclosure is too generic',
+      citation: 'Bottom section: Missing specific investment risks',
+      confidenceScore: 0.78,
+      classification: 'FN'
+    },
   ]);
 
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [comments, setComments] = useState('');
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  // Group items by prompt + disclaimer combination
+  const groupedItems: GroupedItems[] = reviewItems.reduce((acc, item) => {
+    const key = `${item.prompt}|||${item.disclaimer}`;
+    const existingGroup = acc.find(group => group.key === key);
+    
+    if (existingGroup) {
+      existingGroup.items.push(item);
+      if (item.status === 'pending') existingGroup.pendingCount++;
+      if (item.status === 'approved') existingGroup.approvedCount++;
+      if (item.status === 'rejected') existingGroup.rejectedCount++;
+    } else {
+      acc.push({
+        key,
+        prompt: item.prompt,
+        disclaimer: item.disclaimer,
+        items: [item],
+        pendingCount: item.status === 'pending' ? 1 : 0,
+        approvedCount: item.status === 'approved' ? 1 : 0,
+        rejectedCount: item.status === 'rejected' ? 1 : 0,
+      });
+    }
+    
+    return acc;
+  }, [] as GroupedItems[]);
 
   const handleApprove = (itemId: string) => {
     setReviewItems(items =>
@@ -90,6 +142,16 @@ export const Review = () => {
     );
     setSelectedItem(null);
     setComments('');
+  };
+
+  const toggleGroup = (groupKey: string) => {
+    const newExpanded = new Set(expandedGroups);
+    if (newExpanded.has(groupKey)) {
+      newExpanded.delete(groupKey);
+    } else {
+      newExpanded.add(groupKey);
+    }
+    setExpandedGroups(newExpanded);
   };
 
   const getStatusBadge = (status: string) => {
@@ -133,8 +195,9 @@ export const Review = () => {
 
   const selectedItemData = selectedItem ? reviewItems.find(item => item.id === selectedItem) : null;
 
-  const pendingItems = reviewItems.filter(item => item.status === 'pending');
-  const completedItems = reviewItems.filter(item => item.status !== 'pending');
+  const totalPending = reviewItems.filter(item => item.status === 'pending').length;
+  const totalApproved = reviewItems.filter(item => item.status === 'approved').length;
+  const totalRejected = reviewItems.filter(item => item.status === 'rejected').length;
 
   return (
     <div className="space-y-6">
@@ -143,15 +206,15 @@ export const Review = () => {
         <div className="flex gap-4 text-sm text-gray-600">
           <span className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
-            {pendingItems.length} Pending
+            {totalPending} Pending
           </span>
           <span className="flex items-center gap-1">
             <CheckCircle className="h-4 w-4 text-green-600" />
-            {completedItems.filter(item => item.status === 'approved').length} Approved
+            {totalApproved} Approved
           </span>
           <span className="flex items-center gap-1">
             <XCircle className="h-4 w-4 text-red-600" />
-            {completedItems.filter(item => item.status === 'rejected').length} Rejected
+            {totalRejected} Rejected
           </span>
         </div>
       </div>
@@ -273,94 +336,99 @@ export const Review = () => {
         </Card>
       )}
 
-      {/* Pending Reviews */}
-      {pendingItems.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-800">Pending Reviews</h2>
-          {pendingItems.map((item) => (
-            <Card key={item.id} className="border-l-4 border-l-yellow-400">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">{item.prompt}</CardTitle>
-                  {getStatusBadge(item.status)}
-                </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span>Submitted: {item.submittedDate}</span>
-                  <span className="flex items-center gap-1">
-                    <FileText className="h-3 w-3" />
-                    {item.documentName}
-                  </span>
-                  <span>Page {item.pageNumber}</span>
-                  <span className={`font-medium ${getConfidenceColor(item.confidenceScore)}`}>
-                    {(item.confidenceScore * 100).toFixed(1)}% confidence
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">Test Result:</p>
-                  <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{item.result}</p>
-                </div>
-                
-                <Button
-                  onClick={() => setSelectedItem(item.id)}
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                >
-                  <FileText className="h-4 w-4 mr-1" />
-                  Review Item Details
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {/* Completed Reviews */}
-      {completedItems.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-800">Completed Reviews</h2>
-          {completedItems.map((item) => (
-            <Card key={item.id} className={`border-l-4 ${item.status === 'approved' ? 'border-l-green-400' : 'border-l-red-400'}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">{item.prompt}</CardTitle>
-                  {getStatusBadge(item.status)}
-                </div>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span>Submitted: {item.submittedDate}</span>
-                  <span className="flex items-center gap-1">
-                    <FileText className="h-3 w-3" />
-                    {item.documentName}
-                  </span>
-                  <span>Page {item.pageNumber}</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-700 mb-1">Test Result:</p>
-                  <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{item.result}</p>
-                </div>
-                {item.comments && (
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Review Comments:</p>
-                    <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{item.comments}</p>
+      {/* Grouped Review Items */}
+      <div className="space-y-4">
+        {groupedItems.map((group) => (
+          <Card key={group.key} className="border-l-4 border-l-blue-400">
+            <Collapsible
+              open={expandedGroups.has(group.key)}
+              onOpenChange={() => toggleGroup(group.key)}
+            >
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      {expandedGroups.has(group.key) ? 
+                        <ChevronDown className="h-4 w-4" /> : 
+                        <ChevronRight className="h-4 w-4" />
+                      }
+                      {group.prompt}
+                    </CardTitle>
+                    <div className="flex gap-2">
+                      {group.pendingCount > 0 && 
+                        <Badge className="bg-yellow-100 text-yellow-800">
+                          {group.pendingCount} Pending
+                        </Badge>
+                      }
+                      {group.approvedCount > 0 && 
+                        <Badge className="bg-green-100 text-green-800">
+                          {group.approvedCount} Approved
+                        </Badge>
+                      }
+                      {group.rejectedCount > 0 && 
+                        <Badge className="bg-red-100 text-red-800">
+                          {group.rejectedCount} Rejected
+                        </Badge>
+                      }
+                    </div>
                   </div>
-                )}
-                <Button
-                  onClick={() => setSelectedItem(item.id)}
-                  variant="ghost"
-                  size="sm"
-                  className="text-blue-600 hover:text-blue-700"
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                  <div className="text-sm text-gray-600 text-left">
+                    <strong>Disclaimer:</strong> {group.disclaimer}
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent>
+                <CardContent className="pt-0 space-y-4">
+                  {group.items.map((item) => (
+                    <Card key={item.id} className="bg-gray-50 border">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <span className="flex items-center gap-1">
+                              <FileText className="h-3 w-3" />
+                              {item.documentName}
+                            </span>
+                            <span>Page {item.pageNumber}</span>
+                            <span>Submitted: {item.submittedDate}</span>
+                            <span className={`font-medium ${getConfidenceColor(item.confidenceScore)}`}>
+                              {(item.confidenceScore * 100).toFixed(1)}% confidence
+                            </span>
+                          </div>
+                          {getStatusBadge(item.status)}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 mb-1">Test Result:</p>
+                          <p className="text-sm text-gray-900 bg-white p-2 rounded border">{item.result}</p>
+                        </div>
+                        
+                        {item.comments && (
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 mb-1">Review Comments:</p>
+                            <p className="text-sm text-gray-900 bg-white p-2 rounded border">{item.comments}</p>
+                          </div>
+                        )}
+                        
+                        <Button
+                          onClick={() => setSelectedItem(item.id)}
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          Review Item Details
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
+        ))}
+      </div>
 
       {reviewItems.length === 0 && (
         <Card className="text-center py-12">

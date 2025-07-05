@@ -1,11 +1,11 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Users, FileText, AlertTriangle, TestTube, Target, BarChart3 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TrendingUp, Users, FileText, AlertTriangle, TestTube, Target, BarChart3, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 interface DashboardProps {
   onNavigate?: (tab: string) => void;
@@ -24,6 +24,63 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
     { rank: 3, name: "Insurance Status Checker v1.5", recall: 89.7, specificity: 87.2, tests: 52 },
     { rank: 4, name: "Risk Warning Detector v2.0", recall: 88.9, specificity: 86.1, tests: 39 },
     { rank: 5, name: "Hypothetical Performance Classifier", recall: 87.4, specificity: 84.3, tests: 28 },
+  ];
+
+  // Review statistics data
+  const reviewStats = {
+    totalPending: 12,
+    totalApproved: 45,
+    totalRejected: 8,
+    promptDisclaimerCombos: 5
+  };
+
+  // Prompt and disclaimer combinations with their metrics
+  const promptDisclaimerMetrics = [
+    {
+      prompt: "Test prompt for financial disclaimer",
+      disclaimer: "Past performance does not guarantee future results. All investments carry risk of loss.",
+      pending: 2,
+      approved: 1,
+      rejected: 0,
+      recall: 92.5,
+      specificity: 88.3
+    },
+    {
+      prompt: "Investment risk warning validation",
+      disclaimer: "Investment involves risk. You may lose some or all of your invested capital.",
+      pending: 0,
+      approved: 1,
+      rejected: 1,
+      recall: 85.7,
+      specificity: 82.1
+    },
+    {
+      prompt: "FDIC insurance verification",
+      disclaimer: "Not FDIC insured. No bank guarantee. May lose value.",
+      pending: 3,
+      approved: 2,
+      rejected: 1,
+      recall: 89.4,
+      specificity: 91.2
+    },
+    {
+      prompt: "Hypothetical performance warning",
+      disclaimer: "Hypothetical performance results have inherent limitations.",
+      pending: 4,
+      approved: 3,
+      rejected: 2,
+      recall: 87.8,
+      specificity: 84.6
+    },
+    {
+      prompt: "Investment advice disclaimer",
+      disclaimer: "This is not investment advice. Please consult a financial advisor.",
+      pending: 3,
+      approved: 5,
+      rejected: 4,
+      recall: 91.2,
+      specificity: 86.7
+    }
   ];
 
   return (
@@ -56,23 +113,23 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{reviewStats.totalPending}</div>
+            <p className="text-xs text-muted-foreground">{reviewStats.promptDisclaimerCombos} prompt/disclaimer combos</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg. Recall</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">90.4%</div>
             <p className="text-xs text-muted-foreground">+3.2% from previous 30d</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Specificity</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">87.6%</div>
-            <p className="text-xs text-muted-foreground">+1.8% from previous 30d</p>
           </CardContent>
         </Card>
 
@@ -88,10 +145,52 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
         </Card>
       </div>
 
+      {/* Review Status Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            Review Status Summary
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onNavigate?.('review')}
+            >
+              View All Reviews
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-yellow-600" />
+                <span className="font-medium">Pending Review</span>
+              </div>
+              <span className="text-2xl font-bold text-yellow-700">{reviewStats.totalPending}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <span className="font-medium">Approved</span>
+              </div>
+              <span className="text-2xl font-bold text-green-700">{reviewStats.totalApproved}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-center gap-2">
+                <XCircle className="h-5 w-5 text-red-600" />
+                <span className="font-medium">Rejected</span>
+              </div>
+              <span className="text-2xl font-bold text-red-700">{reviewStats.totalRejected}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="rankings">Top Prompts Ranking</TabsTrigger>
+          <TabsTrigger value="prompt-metrics">Prompt/Disclaimer Metrics</TabsTrigger>
           <TabsTrigger value="recent">Recent Activity</TabsTrigger>
         </TabsList>
 
@@ -195,6 +294,75 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="prompt-metrics" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Prompt & Disclaimer Performance Metrics</CardTitle>
+              <p className="text-sm text-gray-600">Performance metrics for each prompt and disclaimer combination</p>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Prompt</TableHead>
+                    <TableHead>Disclaimer</TableHead>
+                    <TableHead>Review Status</TableHead>
+                    <TableHead>Recall</TableHead>
+                    <TableHead>Specificity</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {promptDisclaimerMetrics.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium max-w-xs">
+                        <div className="truncate" title={item.prompt}>
+                          {item.prompt}
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        <div className="truncate text-sm" title={item.disclaimer}>
+                          {item.disclaimer}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1 flex-wrap">
+                          {item.pending > 0 && (
+                            <Badge className="bg-yellow-100 text-yellow-800">
+                              {item.pending} Pending
+                            </Badge>
+                          )}
+                          {item.approved > 0 && (
+                            <Badge className="bg-green-100 text-green-800">
+                              {item.approved} Approved
+                            </Badge>
+                          )}
+                          {item.rejected > 0 && (
+                            <Badge className="bg-red-100 text-red-800">
+                              {item.rejected} Rejected
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{item.recall}%</span>
+                          <Progress value={item.recall} className="h-2 w-16" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{item.specificity}%</span>
+                          <Progress value={item.specificity} className="h-2 w-16" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>

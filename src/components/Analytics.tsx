@@ -1,13 +1,92 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, TrendingUp, Target, Users } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { BarChart3, TrendingUp, Target, Users, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 export const Analytics = () => {
   const [timeRange, setTimeRange] = useState('30d');
   const [metric, setMetric] = useState('accuracy');
+
+  // Review statistics
+  const reviewStats = {
+    totalPending: 12,
+    totalApproved: 45,
+    totalRejected: 8,
+    promptDisclaimerCombos: 5
+  };
+
+  // Detailed prompt and disclaimer combinations with comprehensive metrics
+  const detailedPromptMetrics = [
+    {
+      prompt: "Test prompt for financial disclaimer",
+      disclaimer: "Past performance does not guarantee future results. All investments carry risk of loss.",
+      pending: 2,
+      approved: 1,
+      rejected: 0,
+      recall: 92.5,
+      specificity: 88.3,
+      precision: 89.7,
+      f1Score: 91.1,
+      totalTests: 15,
+      avgConfidence: 0.89
+    },
+    {
+      prompt: "Investment risk warning validation",
+      disclaimer: "Investment involves risk. You may lose some or all of your invested capital.",
+      pending: 0,
+      approved: 1,
+      rejected: 1,
+      recall: 85.7,
+      specificity: 82.1,
+      precision: 83.4,
+      f1Score: 84.5,
+      totalTests: 12,
+      avgConfidence: 0.82
+    },
+    {
+      prompt: "FDIC insurance verification",
+      disclaimer: "Not FDIC insured. No bank guarantee. May lose value.",
+      pending: 3,
+      approved: 2,
+      rejected: 1,
+      recall: 89.4,
+      specificity: 91.2,
+      precision: 90.8,
+      f1Score: 90.1,
+      totalTests: 18,
+      avgConfidence: 0.91
+    },
+    {
+      prompt: "Hypothetical performance warning",
+      disclaimer: "Hypothetical performance results have inherent limitations.",
+      pending: 4,
+      approved: 3,
+      rejected: 2,
+      recall: 87.8,
+      specificity: 84.6,
+      precision: 86.1,
+      f1Score: 86.9,
+      totalTests: 21,
+      avgConfidence: 0.85
+    },
+    {
+      prompt: "Investment advice disclaimer",
+      disclaimer: "This is not investment advice. Please consult a financial advisor.",
+      pending: 3,
+      approved: 5,
+      rejected: 4,
+      recall: 91.2,
+      specificity: 86.7,
+      precision: 88.9,
+      f1Score: 90.0,
+      totalTests: 24,
+      avgConfidence: 0.87
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -58,12 +137,12 @@ export const Analytics = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tests</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">247</div>
-            <p className="text-xs text-muted-foreground">+18% from last month</p>
+            <div className="text-2xl font-bold">{reviewStats.totalPending}</div>
+            <p className="text-xs text-muted-foreground">{reviewStats.promptDisclaimerCombos} combinations</p>
           </CardContent>
         </Card>
 
@@ -90,9 +169,42 @@ export const Analytics = () => {
         </Card>
       </div>
 
+      {/* Review Status Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Review Status Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-yellow-600" />
+                <span className="font-medium">Pending</span>
+              </div>
+              <span className="text-2xl font-bold text-yellow-700">{reviewStats.totalPending}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <span className="font-medium">Approved</span>
+              </div>
+              <span className="text-2xl font-bold text-green-700">{reviewStats.totalApproved}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-center gap-2">
+                <XCircle className="h-5 w-5 text-red-600" />
+                <span className="font-medium">Rejected</span>
+              </div>
+              <span className="text-2xl font-bold text-red-700">{reviewStats.totalRejected}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="performance" className="space-y-6">
         <TabsList>
           <TabsTrigger value="performance">Performance Trends</TabsTrigger>
+          <TabsTrigger value="detailed-metrics">Detailed Metrics</TabsTrigger>
           <TabsTrigger value="heatmap">Regional Heatmap</TabsTrigger>
           <TabsTrigger value="leaderboard">Prompt Leaderboard</TabsTrigger>
           <TabsTrigger value="insights">AI Insights</TabsTrigger>
@@ -152,6 +264,96 @@ export const Analytics = () => {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="detailed-metrics" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Comprehensive Prompt & Disclaimer Metrics</CardTitle>
+              <p className="text-sm text-gray-600">Detailed performance analysis for each prompt and disclaimer combination</p>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Prompt & Disclaimer</TableHead>
+                    <TableHead>Review Status</TableHead>
+                    <TableHead>Recall</TableHead>
+                    <TableHead>Specificity</TableHead>
+                    <TableHead>Precision</TableHead>
+                    <TableHead>F1 Score</TableHead>
+                    <TableHead>Tests</TableHead>
+                    <TableHead>Avg Confidence</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {detailedPromptMetrics.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="max-w-md">
+                        <div className="space-y-1">
+                          <div className="font-medium text-sm truncate" title={item.prompt}>
+                            {item.prompt}
+                          </div>
+                          <div className="text-xs text-gray-500 truncate" title={item.disclaimer}>
+                            {item.disclaimer}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1 flex-wrap">
+                          {item.pending > 0 && (
+                            <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                              {item.pending} Pending
+                            </Badge>
+                          )}
+                          {item.approved > 0 && (
+                            <Badge className="bg-green-100 text-green-800 text-xs">
+                              {item.approved} Approved
+                            </Badge>
+                          )}
+                          {item.rejected > 0 && (
+                            <Badge className="bg-red-100 text-red-800 text-xs">
+                              {item.rejected} Rejected
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{item.recall}%</span>
+                          <Progress value={item.recall} className="h-1 w-12" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{item.specificity}%</span>
+                          <Progress value={item.specificity} className="h-1 w-12" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{item.precision}%</span>
+                          <Progress value={item.precision} className="h-1 w-12" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{item.f1Score}%</span>
+                          <Progress value={item.f1Score} className="h-1 w-12" />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">{item.totalTests}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm font-medium">{(item.avgConfidence * 100).toFixed(1)}%</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>

@@ -1,4 +1,3 @@
-
 import { cn } from '@/lib/utils';
 import { 
   LayoutGrid, 
@@ -7,8 +6,7 @@ import {
   FileText, 
   BookmarkPlus, 
   Settings, 
-  HelpCircle,
-  ClipboardCheck
+  HelpCircle 
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,7 +19,6 @@ const navigationItems = [
   { id: 'test-disclaimer', label: 'Test a Disclaimer', icon: TestTube },
   { id: 'prompt-library', label: 'Prompt Library', icon: Library },
   { id: 'test-results', label: 'Test Results', icon: FileText },
-  { id: 'review', label: 'Review', icon: ClipboardCheck },
   { id: 'saved-prompts', label: 'Saved Prompts', icon: BookmarkPlus },
   { id: 'admin', label: 'Admin', icon: Settings },
   { id: 'help', label: 'Help', icon: HelpCircle },

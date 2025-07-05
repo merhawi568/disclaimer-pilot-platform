@@ -235,14 +235,24 @@ export const TestDisclaimer = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < 7) {
-      setCurrentStep(currentStep + 1);
+    if (currentStep < 6) {
+      // Skip step 6 and go directly to step 7 from step 5
+      if (currentStep === 5) {
+        setCurrentStep(7);
+      } else {
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+      // Skip step 6 when going back from step 7
+      if (currentStep === 7) {
+        setCurrentStep(5);
+      } else {
+        setCurrentStep(currentStep - 1);
+      }
     }
   };
 
@@ -874,89 +884,11 @@ export const TestDisclaimer = () => {
                       <ChevronLeft className="mr-2 h-4 w-4" /> Back
                     </Button>
                     <Button onClick={handleNext} className="flex-1">
-                      View Analysis <ChevronRight className="ml-2 h-4 w-4" />
+                      Save Results <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        );
-
-      case 6:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <span className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">6</span>
-                Post-Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">89.2%</div>
-                  <div className="text-sm text-gray-600">Precision</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">94.1%</div>
-                  <div className="text-sm text-gray-600">Recall</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">91.7%</div>
-                  <div className="text-sm text-gray-600">Specificity</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600">3</div>
-                  <div className="text-sm text-gray-600">False Negatives</div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-3">False Positive Clusters</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="bg-red-50 p-2 rounded">
-                      "Historical performance data shows..."
-                    </div>
-                    <div className="bg-red-50 p-2 rounded">
-                      "Market trends indicate potential..."
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Missed Content (FN)</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="bg-yellow-50 p-2 rounded">
-                      "Expected growth of 8% annually"
-                    </div>
-                    <div className="bg-yellow-50 p-2 rounded">
-                      "Aiming for superior outcomes"
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 className="font-medium text-blue-900 mb-2">AI Suggestions</h4>
-                <p className="text-blue-800 text-sm">
-                  Consider adding trigger words like 'aim', 'expect', 'target', and 'project' to improve recall for future-oriented language.
-                </p>
-                <Button className="mt-3 bg-blue-600 hover:bg-blue-700">
-                  Apply Suggested Prompt
-                </Button>
-              </div>
-
-              <div className="flex space-x-2">
-                <Button variant="outline" onClick={handleBack}>
-                  <ChevronLeft className="mr-2 h-4 w-4" /> Back
-                </Button>
-                <Button variant="outline">Edit Prompt</Button>
-                <Button onClick={handleNext} className="flex-1">
-                  Save Results <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
             </CardContent>
           </Card>
         );
@@ -966,7 +898,7 @@ export const TestDisclaimer = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <span className="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">7</span>
+                <span className="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">6</span>
                 Save Prompt
               </CardTitle>
             </CardHeader>
@@ -1041,14 +973,14 @@ export const TestDisclaimer = () => {
           <h1 className="text-3xl font-bold text-gray-900">Test a Disclaimer</h1>
           <p className="text-gray-600 mt-1">Step-by-step disclaimer testing workflow</p>
         </div>
-        <Badge variant="outline">Step {currentStep} of 7</Badge>
+        <Badge variant="outline">Step {currentStep === 7 ? '6' : currentStep} of 6</Badge>
       </div>
 
       {/* Progress Bar */}
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div 
           className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-          style={{ width: `${(currentStep / 7) * 100}%` }}
+          style={{ width: `${(currentStep === 7 ? 6 : currentStep) / 6 * 100}%` }}
         ></div>
       </div>
 

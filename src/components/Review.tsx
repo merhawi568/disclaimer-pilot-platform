@@ -4,15 +4,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Clock, MessageSquare } from 'lucide-react';
+import { DocumentViewer } from '@/components/DocumentViewer';
+import { CheckCircle, XCircle, Clock, MessageSquare, FileText, AlertTriangle } from 'lucide-react';
 
 interface ReviewItem {
   id: string;
   prompt: string;
+  disclaimer: string;
+  documentName: string;
+  pageNumber: number;
   result: string;
   status: 'pending' | 'approved' | 'rejected';
   submittedDate: string;
   comments?: string;
+  citation: string;
+  confidenceScore: number;
+  metrics: {
+    tp: number; // True Positives
+    tn: number; // True Negatives
+    fp: number; // False Positives
+    fn: number; // False Negatives
+  };
 }
 
 export const Review = () => {
@@ -20,24 +32,42 @@ export const Review = () => {
     {
       id: '1',
       prompt: 'Test prompt for financial disclaimer',
+      disclaimer: 'Past performance does not guarantee future results. All investments carry risk of loss.',
+      documentName: 'Investment_Strategy_Q1_2024.pdf',
+      pageNumber: 3,
       result: 'Pass - Disclaimer meets compliance requirements',
       status: 'pending',
       submittedDate: '2024-01-15',
+      citation: 'Page 3, Paragraph 2: "Our strategies aim to deliver strong returns over the long term"',
+      confidenceScore: 0.92,
+      metrics: { tp: 15, tn: 28, fp: 2, fn: 1 }
     },
     {
       id: '2',
       prompt: 'Investment risk warning validation',
+      disclaimer: 'Investment involves risk. You may lose some or all of your invested capital.',
+      documentName: 'Landing_Page_Screenshot.png',
+      pageNumber: 1,
       result: 'Fail - Missing required risk statements',
       status: 'pending',
       submittedDate: '2024-01-14',
+      citation: 'Main banner section: "Guaranteed 15% Returns" without risk disclosure',
+      confidenceScore: 0.87,
+      metrics: { tp: 8, tn: 22, fp: 5, fn: 3 }
     },
     {
       id: '3',
       prompt: 'General disclaimer compliance check',
+      disclaimer: 'This information is for educational purposes only and should not be considered as investment advice.',
+      documentName: 'Advisory_Services_Brochure.pdf',
+      pageNumber: 1,
       result: 'Pass - All requirements satisfied',
       status: 'approved',
       submittedDate: '2024-01-13',
       comments: 'Approved after thorough review',
+      citation: 'Footer section: Complete disclaimer text present',
+      confidenceScore: 0.95,
+      metrics: { tp: 18, tn: 31, fp: 1, fn: 0 }
     },
   ]);
 
@@ -79,6 +109,19 @@ export const Review = () => {
     }
   };
 
+  const getConfidenceColor = (score: number) => {
+    if (score >= 0.9) return 'text-green-600';
+    if (score >= 0.7) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const calculateAccuracy = (metrics: ReviewItem['metrics']) => {
+    const total = metrics.tp + metrics.tn + metrics.fp + metrics.fn;
+    return total > 0 ? ((metrics.tp + metrics.tn) / total * 100).toFixed(1) : '0.0';
+  };
+
+  const selectedItemData = selectedItem ? reviewItems.find(item => item.id === selectedItem) : null;
+
   const pendingItems = reviewItems.filter(item => item.status === 'pending');
   const completedItems = reviewItems.filter(item => item.status !== 'pending');
 
@@ -102,6 +145,147 @@ export const Review = () => {
         </div>
       </div>
 
+      {selectedItemData && (
+        <Card className="border-2 border-blue-200 bg-blue-50/30">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>Review Details</span>
+              <Button
+                onClick={() => {
+                  setSelectedItem(null);
+                  setComments('');
+                }}
+                variant="outline"
+                size="sm"
+              >
+                Close Details
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column - Details */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Test Information</h4>
+                  <div className="space-y-2 text-sm">
+                    <div><span className="font-medium">Prompt:</span> {selectedItemData.prompt}</div>
+                    <div><span className="font-medium">Document:</span> {selectedItemData.documentName}</div>
+                    <div><span className="font-medium">Page:</span> {selectedItemData.pageNumber}</div>
+                    <div><span className="font-medium">Result:</span> {selectedItemData.result}</div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Disclaimer Text</h4>
+                  <p className="text-sm bg-gray-50 p-3 rounded border">
+                    {selectedItemData.disclaimer}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Citation</h4>
+                  <p className="text-sm bg-yellow-50 p-3 rounded border border-yellow-200">
+                    {selectedItemData.citation}
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Performance Metrics</h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="bg-green-50 p-2 rounded border">
+                      <div className="font-medium text-green-800">True Positives</div>
+                      <div className="text-lg font-bold text-green-900">{selectedItemData.metrics.tp}</div>
+                    </div>
+                    <div className="bg-blue-50 p-2 rounded border">
+                      <div className="font-medium text-blue-800">True Negatives</div>
+                      <div className="text-lg font-bold text-blue-900">{selectedItemData.metrics.tn}</div>
+                    </div>
+                    <div className="bg-red-50 p-2 rounded border">
+                      <div className="font-medium text-red-800">False Positives</div>
+                      <div className="text-lg font-bold text-red-900">{selectedItemData.metrics.fp}</div>
+                    </div>
+                    <div className="bg-orange-50 p-2 rounded border">
+                      <div className="font-medium text-orange-800">False Negatives</div>
+                      <div className="text-lg font-bold text-orange-900">{selectedItemData.metrics.fn}</div>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex justify-between text-sm">
+                    <div>
+                      <span className="font-medium">Confidence Score:</span> 
+                      <span className={`ml-1 font-bold ${getConfidenceColor(selectedItemData.confidenceScore)}`}>
+                        {(selectedItemData.confidenceScore * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium">Accuracy:</span> 
+                      <span className="ml-1 font-bold text-blue-600">
+                        {calculateAccuracy(selectedItemData.metrics)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column - Document Viewer */}
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-2">Document Preview</h4>
+                <DocumentViewer 
+                  document={{
+                    name: selectedItemData.documentName,
+                    type: selectedItemData.documentName.endsWith('.pdf') ? 'pdf' : 'image',
+                    pages: 5,
+                    currentPage: selectedItemData.pageNumber,
+                    matches: [{
+                      page: selectedItemData.pageNumber,
+                      text: selectedItemData.citation,
+                      highlighted: true
+                    }]
+                  }}
+                  showHighlights={true}
+                />
+              </div>
+            </div>
+
+            {/* Review Actions */}
+            <div className="border-t pt-4">
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-1 block">
+                    <MessageSquare className="h-4 w-4 inline mr-1" />
+                    Review Comments
+                  </label>
+                  <Textarea
+                    value={comments}
+                    onChange={(e) => setComments(e.target.value)}
+                    placeholder="Add your review comments..."
+                    className="min-h-[80px]"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleApprove(selectedItemData.id)}
+                    className="bg-green-600 hover:bg-green-700"
+                    size="sm"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Approve
+                  </Button>
+                  <Button
+                    onClick={() => handleReject(selectedItemData.id)}
+                    variant="destructive"
+                    size="sm"
+                  >
+                    <XCircle className="h-4 w-4 mr-1" />
+                    Reject
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Pending Reviews */}
       {pendingItems.length > 0 && (
         <div className="space-y-4">
@@ -113,7 +297,17 @@ export const Review = () => {
                   <CardTitle className="text-base">{item.prompt}</CardTitle>
                   {getStatusBadge(item.status)}
                 </div>
-                <p className="text-sm text-gray-600">Submitted: {item.submittedDate}</p>
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <span>Submitted: {item.submittedDate}</span>
+                  <span className="flex items-center gap-1">
+                    <FileText className="h-3 w-3" />
+                    {item.documentName}
+                  </span>
+                  <span>Page {item.pageNumber}</span>
+                  <span className={`font-medium ${getConfidenceColor(item.confidenceScore)}`}>
+                    {(item.confidenceScore * 100).toFixed(1)}% confidence
+                  </span>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -121,58 +315,15 @@ export const Review = () => {
                   <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{item.result}</p>
                 </div>
                 
-                {selectedItem === item.id ? (
-                  <div className="space-y-3 border-t pt-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 mb-1 block">
-                        <MessageSquare className="h-4 w-4 inline mr-1" />
-                        Review Comments
-                      </label>
-                      <Textarea
-                        value={comments}
-                        onChange={(e) => setComments(e.target.value)}
-                        placeholder="Add your review comments..."
-                        className="min-h-[80px]"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleApprove(item.id)}
-                        className="bg-green-600 hover:bg-green-700"
-                        size="sm"
-                      >
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        Approve
-                      </Button>
-                      <Button
-                        onClick={() => handleReject(item.id)}
-                        variant="destructive"
-                        size="sm"
-                      >
-                        <XCircle className="h-4 w-4 mr-1" />
-                        Reject
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          setSelectedItem(null);
-                          setComments('');
-                        }}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <Button
-                    onClick={() => setSelectedItem(item.id)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Review Item
-                  </Button>
-                )}
+                <Button
+                  onClick={() => setSelectedItem(item.id)}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                >
+                  <FileText className="h-4 w-4 mr-1" />
+                  Review Item Details
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -190,7 +341,14 @@ export const Review = () => {
                   <CardTitle className="text-base">{item.prompt}</CardTitle>
                   {getStatusBadge(item.status)}
                 </div>
-                <p className="text-sm text-gray-600">Submitted: {item.submittedDate}</p>
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <span>Submitted: {item.submittedDate}</span>
+                  <span className="flex items-center gap-1">
+                    <FileText className="h-3 w-3" />
+                    {item.documentName}
+                  </span>
+                  <span>Page {item.pageNumber}</span>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
@@ -203,6 +361,14 @@ export const Review = () => {
                     <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded">{item.comments}</p>
                   </div>
                 )}
+                <Button
+                  onClick={() => setSelectedItem(item.id)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  View Details
+                </Button>
               </CardContent>
             </Card>
           ))}

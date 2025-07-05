@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,12 +18,7 @@ interface ReviewItem {
   comments?: string;
   citation: string;
   confidenceScore: number;
-  metrics: {
-    tp: number; // True Positives
-    tn: number; // True Negatives
-    fp: number; // False Positives
-    fn: number; // False Negatives
-  };
+  classification: 'TP' | 'TN' | 'FP' | 'FN';
 }
 
 export const Review = () => {
@@ -40,7 +34,7 @@ export const Review = () => {
       submittedDate: '2024-01-15',
       citation: 'Page 3, Paragraph 2: "Our strategies aim to deliver strong returns over the long term"',
       confidenceScore: 0.92,
-      metrics: { tp: 15, tn: 28, fp: 2, fn: 1 }
+      classification: 'TP'
     },
     {
       id: '2',
@@ -53,7 +47,7 @@ export const Review = () => {
       submittedDate: '2024-01-14',
       citation: 'Main banner section: "Guaranteed 15% Returns" without risk disclosure',
       confidenceScore: 0.87,
-      metrics: { tp: 8, tn: 22, fp: 5, fn: 3 }
+      classification: 'FP'
     },
     {
       id: '3',
@@ -67,7 +61,7 @@ export const Review = () => {
       comments: 'Approved after thorough review',
       citation: 'Footer section: Complete disclaimer text present',
       confidenceScore: 0.95,
-      metrics: { tp: 18, tn: 31, fp: 1, fn: 0 }
+      classification: 'TN'
     },
   ]);
 
@@ -115,9 +109,26 @@ export const Review = () => {
     return 'text-red-600';
   };
 
-  const calculateAccuracy = (metrics: ReviewItem['metrics']) => {
-    const total = metrics.tp + metrics.tn + metrics.fp + metrics.fn;
-    return total > 0 ? ((metrics.tp + metrics.tn) / total * 100).toFixed(1) : '0.0';
+  const getClassificationBadge = (classification: 'TP' | 'TN' | 'FP' | 'FN') => {
+    const colors = {
+      'TP': 'bg-green-100 text-green-800',
+      'TN': 'bg-blue-100 text-blue-800',
+      'FP': 'bg-red-100 text-red-800',
+      'FN': 'bg-orange-100 text-orange-800'
+    };
+    
+    const labels = {
+      'TP': 'True Positive',
+      'TN': 'True Negative',
+      'FP': 'False Positive',
+      'FN': 'False Negative'
+    };
+
+    return (
+      <Badge className={`${colors[classification]} hover:${colors[classification]} font-medium`}>
+        {classification} - {labels[classification]}
+      </Badge>
+    );
   };
 
   const selectedItemData = selectedItem ? reviewItems.find(item => item.id === selectedItem) : null;
@@ -177,6 +188,11 @@ export const Review = () => {
                 </div>
 
                 <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Classification</h4>
+                  {getClassificationBadge(selectedItemData.classification)}
+                </div>
+
+                <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Disclaimer Text</h4>
                   <p className="text-sm bg-gray-50 p-3 rounded border">
                     {selectedItemData.disclaimer}
@@ -191,39 +207,10 @@ export const Review = () => {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Performance Metrics</h4>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-green-50 p-2 rounded border">
-                      <div className="font-medium text-green-800">True Positives</div>
-                      <div className="text-lg font-bold text-green-900">{selectedItemData.metrics.tp}</div>
-                    </div>
-                    <div className="bg-blue-50 p-2 rounded border">
-                      <div className="font-medium text-blue-800">True Negatives</div>
-                      <div className="text-lg font-bold text-blue-900">{selectedItemData.metrics.tn}</div>
-                    </div>
-                    <div className="bg-red-50 p-2 rounded border">
-                      <div className="font-medium text-red-800">False Positives</div>
-                      <div className="text-lg font-bold text-red-900">{selectedItemData.metrics.fp}</div>
-                    </div>
-                    <div className="bg-orange-50 p-2 rounded border">
-                      <div className="font-medium text-orange-800">False Negatives</div>
-                      <div className="text-lg font-bold text-orange-900">{selectedItemData.metrics.fn}</div>
-                    </div>
-                  </div>
-                  <div className="mt-2 flex justify-between text-sm">
-                    <div>
-                      <span className="font-medium">Confidence Score:</span> 
-                      <span className={`ml-1 font-bold ${getConfidenceColor(selectedItemData.confidenceScore)}`}>
-                        {(selectedItemData.confidenceScore * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Accuracy:</span> 
-                      <span className="ml-1 font-bold text-blue-600">
-                        {calculateAccuracy(selectedItemData.metrics)}%
-                      </span>
-                    </div>
-                  </div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Confidence Score</h4>
+                  <span className={`text-lg font-bold ${getConfidenceColor(selectedItemData.confidenceScore)}`}>
+                    {(selectedItemData.confidenceScore * 100).toFixed(1)}%
+                  </span>
                 </div>
               </div>
 
@@ -233,7 +220,7 @@ export const Review = () => {
                 <DocumentViewer 
                   document={{
                     name: selectedItemData.documentName,
-                    type: selectedItemData.documentName.endsWith('.pdf') ? 'pdf' : 'image',
+                    type: 'image',
                     pages: 5,
                     currentPage: selectedItemData.pageNumber,
                     matches: [{

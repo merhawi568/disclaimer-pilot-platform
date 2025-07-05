@@ -6,7 +6,8 @@ import {
   FileText, 
   BookmarkPlus, 
   Settings, 
-  HelpCircle 
+  HelpCircle,
+  CheckSquare
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -20,6 +21,7 @@ const navigationItems = [
   { id: 'prompt-library', label: 'Prompt Library', icon: Library },
   { id: 'test-results', label: 'Test Results', icon: FileText },
   { id: 'saved-prompts', label: 'Saved Prompts', icon: BookmarkPlus },
+  { id: 'review', label: 'Review', icon: CheckSquare },
   { id: 'admin', label: 'Admin', icon: Settings },
   { id: 'help', label: 'Help', icon: HelpCircle },
 ];

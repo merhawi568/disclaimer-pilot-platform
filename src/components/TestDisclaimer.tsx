@@ -10,6 +10,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronRight, ChevronLeft, Search, Filter, Play, Save, Eye, ZoomIn, ZoomOut, X, ThumbsUp, ThumbsDown, FileText, Bot, User } from 'lucide-react';
 import { DocumentViewer } from './DocumentViewer';
 
@@ -24,6 +25,7 @@ export const TestDisclaimer = () => {
   const [imageZoom, setImageZoom] = useState(100);
   const [feedback, setFeedback] = useState({});
   const [filterType, setFilterType] = useState('all');
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   const disclaimers = [
     "Past performance does not guarantee future returns",
@@ -234,25 +236,37 @@ export const TestDisclaimer = () => {
     }));
   };
 
+  const handleSelectItem = (itemId: number, checked: boolean) => {
+    setSelectedItems(prev => 
+      checked 
+        ? [...prev, itemId]
+        : prev.filter(id => id !== itemId)
+    );
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    const filteredData = getFilteredAnalysisData();
+    if (checked) {
+      setSelectedItems(filteredData.map(item => item.id));
+    } else {
+      setSelectedItems([]);
+    }
+  };
+
+  const handleSubmitForReview = () => {
+    console.log('Submitting items for review:', selectedItems);
+    // Add your review submission logic here
+  };
+
   const handleNext = () => {
     if (currentStep < 6) {
-      // Skip step 6 and go directly to step 7 from step 5
-      if (currentStep === 5) {
-        setCurrentStep(7);
-      } else {
-        setCurrentStep(currentStep + 1);
-      }
+      setCurrentStep(currentStep + 1);
     }
   };
 
   const handleBack = () => {
     if (currentStep > 1) {
-      // Skip step 6 when going back from step 7
-      if (currentStep === 7) {
-        setCurrentStep(5);
-      } else {
-        setCurrentStep(currentStep - 1);
-      }
+      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -279,7 +293,7 @@ export const TestDisclaimer = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setLoading(false);
-          setCurrentStep(4);
+          setCurrentStep(3);
           return 100;
         }
         return prev + 10;
@@ -386,7 +400,7 @@ export const TestDisclaimer = () => {
                 disabled={!selectedDisclaimer && !customDisclaimer}
                 className="w-full"
               >
-                Next: Prompt Selection
+                Next: Document Filter
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
@@ -470,11 +484,11 @@ export const TestDisclaimer = () => {
               </div>
 
               <div className="flex space-x-2">
-                <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                <Button variant="outline" onClick={handleBack}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={() => setCurrentStep(1)} className="flex-1">
-                  Apply Filter & Back to Start <Filter className="ml-2 h-4 w-4" />
+                <Button onClick={handleNext} className="flex-1">
+                  Next: Prompt Selection <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
@@ -487,85 +501,6 @@ export const TestDisclaimer = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <span className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
-                Reduction Review (Optional)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-800 font-medium">Found {mockReductionResults.length} matches across {mockDocuments.length} documents</p>
-                <p className="text-green-600 text-sm">Ready for review</p>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p className="text-blue-800 text-sm">
-                  Review is optional - you can proceed directly to prompt selection or review the results first.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                {mockReductionResults.map((result) => (
-                  <div key={result.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div>
-                        <div className="mb-3">
-                          <p className="font-medium text-gray-900">{result.documentName}</p>
-                          <p className="text-sm text-gray-500">Page {result.pageNumber} • ID: {result.id}</p>
-                        </div>
-                        <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-3">
-                          <p className="text-sm text-gray-800">
-                            "{result.matchText}"
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="secondary" className="cursor-pointer">✅ Correct</Badge>
-                          <Badge variant="destructive" className="cursor-pointer">❌ Incorrect</Badge>
-                        </div>
-                      </div>
-                      <div className="relative">
-                        <img 
-                          src={result.screenshot} 
-                          alt={`Screenshot of ${result.documentName} page ${result.pageNumber}`}
-                          className="w-full h-48 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
-                          onClick={() => handleImageClick(result.screenshot)}
-                        />
-                        <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                          Page {result.pageNumber}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-2">Keyboard shortcuts:</p>
-                <div className="flex space-x-4 text-xs">
-                  <span className="bg-white px-2 py-1 rounded">← → Navigate</span>
-                  <span className="bg-white px-2 py-1 rounded">T Toggle Correct</span>
-                  <span className="bg-white px-2 py-1 rounded">F Toggle Incorrect</span>
-                  <span className="bg-white px-2 py-1 rounded">C Comment</span>
-                </div>
-              </div>
-
-              <div className="flex space-x-2">
-                <Button variant="outline" onClick={handleBack}>
-                  <ChevronLeft className="mr-2 h-4 w-4" /> Back
-                </Button>
-                <Button variant="outline">Approve All</Button>
-                <Button onClick={() => setCurrentStep(4)} className="flex-1">
-                  Skip to Prompt Selection <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-
-      case 4:
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <span className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</span>
                 Prompt Selection
               </CardTitle>
             </CardHeader>
@@ -573,12 +508,9 @@ export const TestDisclaimer = () => {
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-800 font-medium">Reduction Complete</p>
-                    <p className="text-green-600 text-sm">Found {mockReductionResults.length} matches across {mockDocuments.length} documents</p>
+                    <p className="text-green-800 font-medium">Ready for Testing</p>
+                    <p className="text-green-600 text-sm">Documents filtered and ready for prompt testing</p>
                   </div>
-                  <Button variant="outline" size="sm" onClick={() => setCurrentStep(3)}>
-                    <Eye className="mr-2 h-4 w-4" /> View Results
-                  </Button>
                 </div>
               </div>
 
@@ -613,7 +545,7 @@ export const TestDisclaimer = () => {
               </div>
 
               <div className="flex space-x-2">
-                <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                <Button variant="outline" onClick={handleBack}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
                 <Button onClick={simulateTest} className="flex-1">
@@ -624,12 +556,12 @@ export const TestDisclaimer = () => {
           </Card>
         );
 
-      case 5:
+      case 4:
         return (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <span className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">5</span>
+                <span className="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</span>
                 Test Results
               </CardTitle>
             </CardHeader>
@@ -723,10 +655,34 @@ export const TestDisclaimer = () => {
                       </TabsList>
                       
                       <TabsContent value="manual" className="mt-4">
+                        {/* Selection Controls */}
+                        <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                checked={selectedItems.length === getFilteredAnalysisData().length && getFilteredAnalysisData().length > 0}
+                                onCheckedChange={handleSelectAll}
+                              />
+                              <Label className="text-sm font-medium">Select All</Label>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {selectedItems.length} of {getFilteredAnalysisData().length} selected
+                            </div>
+                          </div>
+                          <Button
+                            onClick={handleSubmitForReview}
+                            disabled={selectedItems.length === 0}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Submit for Review ({selectedItems.length})
+                          </Button>
+                        </div>
+
                         <div className="overflow-x-auto">
                           <Table>
                             <TableHeader>
                               <TableRow>
+                                <TableHead className="w-12">Select</TableHead>
                                 <TableHead>Type</TableHead>
                                 <TableHead>Document ID</TableHead>
                                 <TableHead>Document Name</TableHead>
@@ -742,6 +698,12 @@ export const TestDisclaimer = () => {
                             <TableBody>
                               {getFilteredAnalysisData().map((item) => (
                                 <TableRow key={item.id}>
+                                  <TableCell>
+                                    <Checkbox
+                                      checked={selectedItems.includes(item.id)}
+                                      onCheckedChange={(checked) => handleSelectItem(item.id, checked as boolean)}
+                                    />
+                                  </TableCell>
                                   <TableCell>
                                     <Badge 
                                       variant={
@@ -884,7 +846,7 @@ export const TestDisclaimer = () => {
                       <ChevronLeft className="mr-2 h-4 w-4" /> Back
                     </Button>
                     <Button onClick={handleNext} className="flex-1">
-                      Save Results <ChevronRight className="ml-2 h-4 w-4" />
+                      Next: Review & Save <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -893,47 +855,39 @@ export const TestDisclaimer = () => {
           </Card>
         );
 
-      case 7:
+      case 5:
         return (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <span className="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">6</span>
-                Save Prompt
+                <span className="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">5</span>
+                Review & Save
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="prompt-name">Prompt Name</Label>
+                <Label htmlFor="test-name">Test Name</Label>
                 <Input 
-                  id="prompt-name" 
-                  defaultValue="Future Returns Detection v2.2"
-                  placeholder="Enter prompt name..."
+                  id="test-name" 
+                  defaultValue={testResult.name}
+                  placeholder="Enter test name..."
                 />
               </div>
 
               <div>
-                <Label htmlFor="prompt-description">Description</Label>
+                <Label htmlFor="test-description">Description</Label>
                 <Textarea 
-                  id="prompt-description"
-                  defaultValue="Enhanced version with improved trigger words for future-oriented investment language"
-                  placeholder="Describe this prompt..."
+                  id="test-description"
+                  defaultValue="Test for detecting future performance language without proper disclaimers"
+                  placeholder="Describe this test..."
                   rows={3}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="prompt-tags">Tags (optional)</Label>
-                <Input 
-                  id="prompt-tags" 
-                  placeholder="performance, returns, investment..."
                 />
               </div>
 
               <div>
                 <Label>Linked Disclaimer</Label>
                 <Input 
-                  value={selectedDisclaimer}
+                  value={selectedDisclaimer || customDisclaimer}
                   disabled
                   className="bg-gray-50"
                 />
@@ -942,8 +896,8 @@ export const TestDisclaimer = () => {
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-green-900">Test Results Saved</p>
-                    <p className="text-sm text-green-700">Accuracy: 92.1% • 11 documents tested</p>
+                    <p className="font-medium text-green-900">Test Results Summary</p>
+                    <p className="text-sm text-green-700">Accuracy: {testResult.accuracy}% • {testResult.documents} documents tested</p>
                   </div>
                   <Save className="h-6 w-6 text-green-600" />
                 </div>
@@ -953,8 +907,59 @@ export const TestDisclaimer = () => {
                 <Button variant="outline" onClick={handleBack}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={() => setCurrentStep(1)} className="flex-1">
-                  Save & Start New Test
+                <Button onClick={() => setCurrentStep(6)} className="flex-1">
+                  Save Test Results
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        );
+
+      case 6:
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <span className="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">6</span>
+                Test Complete
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center py-8">
+                <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Save className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Test Saved Successfully!</h3>
+                <p className="text-gray-600 mb-4">Your disclaimer test has been saved and is ready for review.</p>
+                
+                <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-700">Test Name:</span>
+                      <p className="text-gray-600">{testResult.name}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Accuracy:</span>
+                      <p className="text-gray-600">{testResult.accuracy}%</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Documents:</span>
+                      <p className="text-gray-600">{testResult.documents} tested</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-700">Status:</span>
+                      <p className="text-gray-600">Saved</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-2">
+                <Button variant="outline" onClick={() => setCurrentStep(1)} className="flex-1">
+                  Start New Test
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  View Test Results
                 </Button>
               </div>
             </CardContent>
@@ -973,14 +978,14 @@ export const TestDisclaimer = () => {
           <h1 className="text-3xl font-bold text-gray-900">Test a Disclaimer</h1>
           <p className="text-gray-600 mt-1">Step-by-step disclaimer testing workflow</p>
         </div>
-        <Badge variant="outline">Step {currentStep === 7 ? '6' : currentStep} of 6</Badge>
+        <Badge variant="outline">Step {currentStep} of 6</Badge>
       </div>
 
       {/* Progress Bar */}
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div 
           className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-          style={{ width: `${(currentStep === 7 ? 6 : currentStep) / 6 * 100}%` }}
+          style={{ width: `${currentStep / 6 * 100}%` }}
         ></div>
       </div>
 

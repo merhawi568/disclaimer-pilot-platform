@@ -1,4 +1,3 @@
-
 import { cn } from '@/lib/utils';
 import { 
   LayoutGrid, 
@@ -6,7 +5,6 @@ import {
   Library, 
   FileText, 
   BookmarkPlus, 
-  BarChart3, 
   Settings, 
   HelpCircle 
 } from 'lucide-react';
@@ -22,7 +20,6 @@ const navigationItems = [
   { id: 'prompt-library', label: 'Prompt Library', icon: Library },
   { id: 'test-results', label: 'Test Results', icon: FileText },
   { id: 'saved-prompts', label: 'Saved Prompts', icon: BookmarkPlus },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'admin', label: 'Admin', icon: Settings },
   { id: 'help', label: 'Help', icon: HelpCircle },
 ];

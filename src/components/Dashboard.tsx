@@ -1,8 +1,11 @@
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, Users, FileText, AlertTriangle, TestTube } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TrendingUp, Users, FileText, AlertTriangle, TestTube, Target, BarChart3 } from 'lucide-react';
 
 interface DashboardProps {
   onNavigate?: (tab: string) => void;
@@ -16,17 +19,19 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
   ];
 
   const topPrompts = [
-    { name: 'Future Returns Detection', accuracy: 96, tests: 45 },
-    { name: 'Insurance Status Checker', accuracy: 94, tests: 38 },
-    { name: 'Investment Advice Filter', accuracy: 91, tests: 29 },
+    { rank: 1, name: "Future Returns Detection v2.2", recall: 94.2, specificity: 91.8, tests: 89 },
+    { rank: 2, name: "Investment Advice Filter v3.1", recall: 91.3, specificity: 89.5, tests: 67 },
+    { rank: 3, name: "Insurance Status Checker v1.5", recall: 89.7, specificity: 87.2, tests: 52 },
+    { rank: 4, name: "Risk Warning Detector v2.0", recall: 88.9, specificity: 86.1, tests: 39 },
+    { rank: 5, name: "Hypothetical Performance Classifier", recall: 87.4, specificity: 84.3, tests: 28 },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">Monitor your disclaimer testing performance</p>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard & Analytics</h1>
+          <p className="text-gray-600 mt-1">Last 30 days performance overview</p>
         </div>
         <Button 
           className="bg-blue-600 hover:bg-blue-700"
@@ -36,135 +41,228 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
         </Button>
       </div>
 
-      {/* Key Metrics */}
+      {/* Key Metrics - Last 30 Days */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Tests</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Prompts</CardTitle>
+            <TestTube className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <div className="text-2xl font-bold">47</div>
+            <p className="text-xs text-muted-foreground">Active in last 30 days</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Accuracy</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Avg. Recall</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">92.3%</div>
-            <p className="text-xs text-muted-foreground">+2.1% from last week</p>
+            <div className="text-2xl font-bold">90.4%</div>
+            <p className="text-xs text-muted-foreground">+3.2% from previous 30d</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg. Specificity</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">87.6%</div>
+            <p className="text-xs text-muted-foreground">+1.8% from previous 30d</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Documents Tested</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1,247</div>
-            <p className="text-xs text-muted-foreground">+180 this week</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">False Positives</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">-8% from last week</p>
+            <p className="text-xs text-muted-foreground">Last 30 days</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Tests */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Tests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentTests.map((test, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium text-sm">{test.name}</p>
-                    <p className="text-xs text-gray-500">{test.date}</p>
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="rankings">Top Prompts Ranking</TabsTrigger>
+          <TabsTrigger value="recent">Recent Activity</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Performance Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Summary (30 Days)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">Best Performing Category</p>
+                      <p className="text-xs text-gray-600">Future Returns Detection</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-green-700">94.2%</p>
+                      <p className="text-xs text-gray-500">Avg Recall</p>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant={test.status === 'Completed' ? 'default' : 'secondary'}>
-                      {test.status}
-                    </Badge>
-                    <span className="text-sm font-medium">{test.accuracy}%</span>
+                  
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">Most Tested</p>
+                      <p className="text-xs text-gray-600">Investment Advice Filters</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-blue-700">89</p>
+                      <p className="text-xs text-gray-500">Tests Run</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">Needs Attention</p>
+                      <p className="text-xs text-gray-600">FDIC Insurance Checks</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-yellow-700">78.4%</p>
+                      <p className="text-xs text-gray-500">Below Target</p>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
-        {/* Top Performing Prompts */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Performing Prompts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {topPrompts.map((prompt, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium text-sm">{prompt.name}</p>
-                    <span className="text-sm font-medium">{prompt.accuracy}%</span>
+            {/* Monthly Trend */}
+            <Card>
+              <CardHeader>
+                <CardTitle>30-Day Performance Trend</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 bg-gray-50 rounded flex items-center justify-center">
+                  <div className="text-center">
+                    <TrendingUp className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">Performance trend chart</p>
+                    <p className="text-xs text-gray-400 mt-1">Recall & Specificity over time</p>
                   </div>
-                  <Progress value={prompt.accuracy} className="h-2" />
-                  <p className="text-xs text-gray-500">{prompt.tests} tests completed</p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col items-center justify-center"
-              onClick={() => onNavigate?.('test-disclaimer')}
-            >
-              <TestTube className="h-6 w-6 mb-2" />
-              Test New Disclaimer
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col items-center justify-center"
-              onClick={() => onNavigate?.('test-results')}
-            >
-              <FileText className="h-6 w-6 mb-2" />
-              Review Results
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-20 flex flex-col items-center justify-center"
-              onClick={() => onNavigate?.('analytics')}
-            >
-              <TrendingUp className="h-6 w-6 mb-2" />
-              View Analytics
-            </Button>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="rankings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Performing Prompts (Last 30 Days)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {topPrompts.map((prompt) => (
+                  <div key={prompt.rank} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-bold text-blue-800">
+                        {prompt.rank}
+                      </div>
+                      <div>
+                        <p className="font-medium">{prompt.name}</p>
+                        <p className="text-sm text-gray-500">{prompt.tests} tests completed</p>
+                      </div>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <div className="flex space-x-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">Recall: </span>
+                          <span className="font-medium">{prompt.recall}%</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Specificity: </span>
+                          <span className="font-medium">{prompt.specificity}%</span>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Progress value={prompt.recall} className="h-2 w-16" />
+                        <Progress value={prompt.specificity} className="h-2 w-16" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="recent" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Recent Tests */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Tests</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentTests.map((test, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{test.name}</p>
+                        <p className="text-xs text-gray-500">{test.date}</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={test.status === 'Completed' ? 'default' : 'secondary'}>
+                          {test.status}
+                        </Badge>
+                        <span className="text-sm font-medium">{test.accuracy}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 gap-3">
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex items-center justify-start space-x-3"
+                    onClick={() => onNavigate?.('test-disclaimer')}
+                  >
+                    <TestTube className="h-5 w-5" />
+                    <span>Test New Disclaimer</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex items-center justify-start space-x-3"
+                    onClick={() => onNavigate?.('test-results')}
+                  >
+                    <FileText className="h-5 w-5" />
+                    <span>Review All Results</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-16 flex items-center justify-start space-x-3"
+                    onClick={() => onNavigate?.('prompt-library')}
+                  >
+                    <TrendingUp className="h-5 w-5" />
+                    <span>Browse Prompt Library</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

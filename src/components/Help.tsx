@@ -1,11 +1,11 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Search, BookOpen, Video, MessageCircle, FileText, ExternalLink } from 'lucide-react';
+import { Search, BookOpen, Video, MessageCircle, FileText, ExternalLink, Library } from 'lucide-react';
+import { PromptLibrary } from '@/components/PromptLibrary';
 
 export const Help = () => {
   const faqs = [
@@ -83,6 +83,10 @@ export const Help = () => {
               <TabsTrigger value="faq">FAQ</TabsTrigger>
               <TabsTrigger value="tutorials">Tutorials</TabsTrigger>
               <TabsTrigger value="documentation">Documentation</TabsTrigger>
+              <TabsTrigger value="prompt-library">
+                <Library className="h-4 w-4 mr-2" />
+                Prompt Library
+              </TabsTrigger>
               <TabsTrigger value="support">Support</TabsTrigger>
             </TabsList>
 
@@ -283,6 +287,10 @@ export const Help = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="prompt-library" className="space-y-6">
+              <PromptLibrary />
             </TabsContent>
 
             <TabsContent value="support" className="space-y-6">

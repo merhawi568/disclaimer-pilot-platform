@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ChevronRight, ChevronLeft, Search, Filter, Play, Save, Eye, ZoomIn, ZoomOut, X, ThumbsUp, ThumbsDown, FileText, Bot, User } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronRight, ChevronLeft, Search, Filter, Play, Save, Eye, ZoomIn, ZoomOut, X, ThumbsUp, ThumbsDown, FileText, Bot, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { DocumentViewer } from './DocumentViewer';
 
 export const TestDisclaimer = () => {
@@ -26,6 +27,8 @@ export const TestDisclaimer = () => {
   const [feedback, setFeedback] = useState({});
   const [filterType, setFilterType] = useState('all');
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [reductionComplete, setReductionComplete] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
 
   const disclaimers = [
     "Past performance does not guarantee future returns",
@@ -46,7 +49,6 @@ export const TestDisclaimer = () => {
     ]
   };
 
-  // Test result data that matches TestResults component
   const testResult = {
     id: 1,
     name: "Future Returns Detection Test",
@@ -181,35 +183,45 @@ export const TestDisclaimer = () => {
       documentName: "Q1_Brochure_US.pdf",
       pageNumber: 3,
       screenshot: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=600&fit=crop",
-      matchText: "Our strategies aim to deliver strong returns over the long term"
+      matchText: "Our strategies aim to deliver strong returns over the long term",
+      confidence: 94.2,
+      highlighted: true
     },
     {
       id: 2,
       documentName: "Q1_Brochure_US.pdf", 
       pageNumber: 7,
       screenshot: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop",
-      matchText: "Historical data demonstrates consistent performance"
+      matchText: "Historical data demonstrates consistent performance",
+      confidence: 87.5,
+      highlighted: true
     },
     {
       id: 3,
       documentName: "LandingPage_EMEA.html",
       pageNumber: 1,
       screenshot: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop",
-      matchText: "Guaranteed 15% annual returns on investment"
+      matchText: "Guaranteed 15% annual returns on investment",
+      confidence: 96.8,
+      highlighted: true
     },
     {
       id: 4,
       documentName: "Investment_Guide_APAC.pdf",
       pageNumber: 12,
       screenshot: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=800&h=600&fit=crop",
-      matchText: "Expected growth trajectory of 8-12% annually"
+      matchText: "Expected growth trajectory of 8-12% annually",
+      confidence: 89.3,
+      highlighted: true
     },
     {
       id: 5,
       documentName: "Investment_Guide_APAC.pdf",
       pageNumber: 18,
       screenshot: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&h=600&fit=crop",
-      matchText: "Projected returns based on market analysis"
+      matchText: "Projected returns based on market analysis",
+      confidence: 82.7,
+      highlighted: true
     }
   ];
 
@@ -293,6 +305,7 @@ export const TestDisclaimer = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setLoading(false);
+          setReductionComplete(true);
           setCurrentStep(3);
           return 100;
         }
@@ -513,6 +526,93 @@ export const TestDisclaimer = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Optional Document Reduction Validation */}
+              {reductionComplete && (
+                <Collapsible open={showValidation} onOpenChange={setShowValidation}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      <span className="flex items-center">
+                        <Eye className="h-4 w-4 mr-2" />
+                        Review Document Reduction Results (Optional)
+                      </span>
+                      {showValidation ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-4">
+                    <Card className="border-blue-200">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Reduction Validation</CardTitle>
+                        <p className="text-sm text-gray-600">
+                          Review the content that was identified during document reduction. This helps ensure the right content will be tested.
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm text-gray-600">
+                              Found {mockReductionResults.length} potential matches across {new Set(mockReductionResults.map(r => r.documentName)).size} documents
+                            </div>
+                            <Badge className="bg-blue-100 text-blue-800">
+                              Avg. Confidence: {Math.round(mockReductionResults.reduce((acc, r) => acc + r.confidence, 0) / mockReductionResults.length)}%
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 gap-4 max-h-96 overflow-y-auto">
+                            {mockReductionResults.map((result) => (
+                              <div key={result.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                                <div className="flex gap-4">
+                                  <div className="flex-shrink-0">
+                                    <img 
+                                      src={result.screenshot} 
+                                      alt={`${result.documentName} page ${result.pageNumber}`}
+                                      className="w-20 h-24 object-cover rounded cursor-pointer hover:opacity-80"
+                                      onClick={() => handleImageClick(result.screenshot)}
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between mb-2">
+                                      <div>
+                                        <h4 className="font-medium text-sm">{result.documentName}</h4>
+                                        <p className="text-xs text-gray-500">Page {result.pageNumber}</p>
+                                      </div>
+                                      <Badge variant="outline" className="text-xs">
+                                        {result.confidence}% confidence
+                                      </Badge>
+                                    </div>
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mb-2">
+                                      <p className="text-sm text-gray-700">
+                                        <mark className="bg-yellow-200 px-1 rounded">
+                                          {result.matchText}
+                                        </mark>
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs text-gray-500">
+                                        This content matches your disclaimer criteria
+                                      </span>
+                                      <Button size="sm" variant="ghost" onClick={() => handleImageClick(result.screenshot)}>
+                                        <ZoomIn className="h-3 w-3 mr-1" />
+                                        View
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <p className="text-blue-800 text-sm">
+                              ✓ Reduction looks good? You can proceed to select a prompt and run the test.
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
 
               <div>
                 <Label>Search Prompt Library</Label>

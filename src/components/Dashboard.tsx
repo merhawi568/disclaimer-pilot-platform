@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
@@ -14,6 +15,8 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ onNavigate }: DashboardProps) => {
+  const [selectedPrompt, setSelectedPrompt] = useState('all');
+  
   const recentTests = [
     { name: 'Investment Returns Disclaimer', accuracy: 94, status: 'Completed', date: '2 hours ago' },
     { name: 'FDIC Insurance Notice', accuracy: 87, status: 'In Progress', date: '5 hours ago' },
@@ -34,6 +37,149 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
     totalApproved: 45,
     totalRejected: 8,
     promptDisclaimerCombos: 5
+  };
+
+  // Prompt performance data for the chart
+  const promptPerformanceData = {
+    all: [
+      { day: "Dec 18", recall: 82, specificity: 85, accuracy: 83 },
+      { day: "Dec 19", recall: 83, specificity: 86, accuracy: 84 },
+      { day: "Dec 20", recall: 84, specificity: 87, accuracy: 85 },
+      { day: "Dec 21", recall: 85, specificity: 88, accuracy: 86 },
+      { day: "Dec 22", recall: 86, specificity: 89, accuracy: 87 },
+      { day: "Dec 23", recall: 87, specificity: 90, accuracy: 88 },
+      { day: "Dec 24", recall: 88, specificity: 91, accuracy: 89 },
+      { day: "Dec 25", recall: 89, specificity: 92, accuracy: 90 },
+      { day: "Dec 26", recall: 90, specificity: 93, accuracy: 91 },
+      { day: "Dec 27", recall: 91, specificity: 94, accuracy: 92 },
+      { day: "Dec 28", recall: 92, specificity: 95, accuracy: 93 },
+      { day: "Dec 29", recall: 93, specificity: 96, accuracy: 94 },
+      { day: "Dec 30", recall: 94, specificity: 97, accuracy: 95 },
+      { day: "Dec 31", recall: 95, specificity: 98, accuracy: 96 },
+      { day: "Jan 1", recall: 96, specificity: 99, accuracy: 97 },
+      { day: "Jan 2", recall: 97, specificity: 100, accuracy: 98 },
+      { day: "Jan 3", recall: 98, specificity: 99, accuracy: 98.5 },
+      { day: "Jan 4", recall: 99, specificity: 98, accuracy: 98.5 },
+      { day: "Jan 5", recall: 100, specificity: 97, accuracy: 98.5 },
+      { day: "Jan 6", recall: 99.5, specificity: 96, accuracy: 97.8 },
+      { day: "Jan 7", recall: 99, specificity: 95, accuracy: 97 },
+      { day: "Jan 8", recall: 98.5, specificity: 94, accuracy: 96.3 },
+      { day: "Jan 9", recall: 98, specificity: 93, accuracy: 95.5 },
+      { day: "Jan 10", recall: 97.5, specificity: 92, accuracy: 94.8 },
+      { day: "Jan 11", recall: 97, specificity: 91, accuracy: 94 },
+      { day: "Jan 12", recall: 96.5, specificity: 90, accuracy: 93.3 },
+      { day: "Jan 13", recall: 96, specificity: 89, accuracy: 92.5 },
+      { day: "Jan 14", recall: 95.5, specificity: 88, accuracy: 91.8 },
+      { day: "Jan 15", recall: 95, specificity: 87, accuracy: 91 },
+      { day: "Jan 16", recall: 94.5, specificity: 86, accuracy: 90.3 },
+    ],
+    'future-returns': [
+      { day: "Dec 18", recall: 88, specificity: 91, accuracy: 89 },
+      { day: "Dec 19", recall: 89, specificity: 92, accuracy: 90 },
+      { day: "Dec 20", recall: 90, specificity: 93, accuracy: 91 },
+      { day: "Dec 21", recall: 91, specificity: 94, accuracy: 92 },
+      { day: "Dec 22", recall: 92, specificity: 95, accuracy: 93 },
+      { day: "Dec 23", recall: 93, specificity: 96, accuracy: 94 },
+      { day: "Dec 24", recall: 94, specificity: 97, accuracy: 95 },
+      { day: "Dec 25", recall: 95, specificity: 98, accuracy: 96 },
+      { day: "Dec 26", recall: 96, specificity: 99, accuracy: 97 },
+      { day: "Dec 27", recall: 97, specificity: 100, accuracy: 98 },
+      { day: "Dec 28", recall: 98, specificity: 99, accuracy: 98.5 },
+      { day: "Dec 29", recall: 99, specificity: 98, accuracy: 98.5 },
+      { day: "Dec 30", recall: 100, specificity: 97, accuracy: 98.5 },
+      { day: "Dec 31", recall: 99.5, specificity: 96, accuracy: 97.8 },
+      { day: "Jan 1", recall: 99, specificity: 95, accuracy: 97 },
+      { day: "Jan 2", recall: 98.5, specificity: 94, accuracy: 96.3 },
+      { day: "Jan 3", recall: 98, specificity: 93, accuracy: 95.5 },
+      { day: "Jan 4", recall: 97.5, specificity: 92, accuracy: 94.8 },
+      { day: "Jan 5", recall: 97, specificity: 91, accuracy: 94 },
+      { day: "Jan 6", recall: 96.5, specificity: 90, accuracy: 93.3 },
+      { day: "Jan 7", recall: 96, specificity: 89, accuracy: 92.5 },
+      { day: "Jan 8", recall: 95.5, specificity: 88, accuracy: 91.8 },
+      { day: "Jan 9", recall: 95, specificity: 87, accuracy: 91 },
+      { day: "Jan 10", recall: 94.5, specificity: 86, accuracy: 90.3 },
+      { day: "Jan 11", recall: 94, specificity: 85, accuracy: 89.5 },
+      { day: "Jan 12", recall: 93.5, specificity: 84, accuracy: 88.8 },
+      { day: "Jan 13", recall: 93, specificity: 83, accuracy: 88 },
+      { day: "Jan 14", recall: 92.5, specificity: 82, accuracy: 87.3 },
+      { day: "Jan 15", recall: 92, specificity: 81, accuracy: 86.5 },
+      { day: "Jan 16", recall: 91.5, specificity: 80, accuracy: 85.8 },
+    ],
+    'investment-advice': [
+      { day: "Dec 18", recall: 78, specificity: 82, accuracy: 80 },
+      { day: "Dec 19", recall: 79, specificity: 83, accuracy: 81 },
+      { day: "Dec 20", recall: 80, specificity: 84, accuracy: 82 },
+      { day: "Dec 21", recall: 81, specificity: 85, accuracy: 83 },
+      { day: "Dec 22", recall: 82, specificity: 86, accuracy: 84 },
+      { day: "Dec 23", recall: 83, specificity: 87, accuracy: 85 },
+      { day: "Dec 24", recall: 84, specificity: 88, accuracy: 86 },
+      { day: "Dec 25", recall: 85, specificity: 89, accuracy: 87 },
+      { day: "Dec 26", recall: 86, specificity: 90, accuracy: 88 },
+      { day: "Dec 27", recall: 87, specificity: 91, accuracy: 89 },
+      { day: "Dec 28", recall: 88, specificity: 92, accuracy: 90 },
+      { day: "Dec 29", recall: 89, specificity: 93, accuracy: 91 },
+      { day: "Dec 30", recall: 90, specificity: 94, accuracy: 92 },
+      { day: "Dec 31", recall: 91, specificity: 95, accuracy: 93 },
+      { day: "Jan 1", recall: 92, specificity: 96, accuracy: 94 },
+      { day: "Jan 2", recall: 93, specificity: 97, accuracy: 95 },
+      { day: "Jan 3", recall: 94, specificity: 98, accuracy: 96 },
+      { day: "Jan 4", recall: 95, specificity: 99, accuracy: 97 },
+      { day: "Jan 5", recall: 96, specificity: 100, accuracy: 98 },
+      { day: "Jan 6", recall: 95.5, specificity: 99, accuracy: 97.3 },
+      { day: "Jan 7", recall: 95, specificity: 98, accuracy: 96.5 },
+      { day: "Jan 8", recall: 94.5, specificity: 97, accuracy: 95.8 },
+      { day: "Jan 9", recall: 94, specificity: 96, accuracy: 95 },
+      { day: "Jan 10", recall: 93.5, specificity: 95, accuracy: 94.3 },
+      { day: "Jan 11", recall: 93, specificity: 94, accuracy: 93.5 },
+      { day: "Jan 12", recall: 92.5, specificity: 93, accuracy: 92.8 },
+      { day: "Jan 13", recall: 92, specificity: 92, accuracy: 92 },
+      { day: "Jan 14", recall: 91.5, specificity: 91, accuracy: 91.3 },
+      { day: "Jan 15", recall: 91, specificity: 90, accuracy: 90.5 },
+      { day: "Jan 16", recall: 90.5, specificity: 89, accuracy: 89.8 },
+    ],
+    'fdic-insurance': [
+      { day: "Dec 18", recall: 72, specificity: 75, accuracy: 73 },
+      { day: "Dec 19", recall: 73, specificity: 76, accuracy: 74 },
+      { day: "Dec 20", recall: 74, specificity: 77, accuracy: 75 },
+      { day: "Dec 21", recall: 75, specificity: 78, accuracy: 76 },
+      { day: "Dec 22", recall: 76, specificity: 79, accuracy: 77 },
+      { day: "Dec 23", recall: 77, specificity: 80, accuracy: 78 },
+      { day: "Dec 24", recall: 78, specificity: 81, accuracy: 79 },
+      { day: "Dec 25", recall: 79, specificity: 82, accuracy: 80 },
+      { day: "Dec 26", recall: 80, specificity: 83, accuracy: 81 },
+      { day: "Dec 27", recall: 81, specificity: 84, accuracy: 82 },
+      { day: "Dec 28", recall: 82, specificity: 85, accuracy: 83 },
+      { day: "Dec 29", recall: 83, specificity: 86, accuracy: 84 },
+      { day: "Dec 30", recall: 84, specificity: 87, accuracy: 85 },
+      { day: "Dec 31", recall: 85, specificity: 88, accuracy: 86 },
+      { day: "Jan 1", recall: 86, specificity: 89, accuracy: 87 },
+      { day: "Jan 2", recall: 87, specificity: 90, accuracy: 88 },
+      { day: "Jan 3", recall: 88, specificity: 91, accuracy: 89 },
+      { day: "Jan 4", recall: 89, specificity: 92, accuracy: 90 },
+      { day: "Jan 5", recall: 90, specificity: 93, accuracy: 91 },
+      { day: "Jan 6", recall: 89.5, specificity: 92, accuracy: 90.8 },
+      { day: "Jan 7", recall: 89, specificity: 91, accuracy: 90 },
+      { day: "Jan 8", recall: 88.5, specificity: 90, accuracy: 89.3 },
+      { day: "Jan 9", recall: 88, specificity: 89, accuracy: 88.5 },
+      { day: "Jan 10", recall: 87.5, specificity: 88, accuracy: 87.8 },
+      { day: "Jan 11", recall: 87, specificity: 87, accuracy: 87 },
+      { day: "Jan 12", recall: 86.5, specificity: 86, accuracy: 86.3 },
+      { day: "Jan 13", recall: 86, specificity: 85, accuracy: 85.5 },
+      { day: "Jan 14", recall: 85.5, specificity: 84, accuracy: 84.8 },
+      { day: "Jan 15", recall: 85, specificity: 83, accuracy: 84 },
+      { day: "Jan 16", recall: 84.5, specificity: 82, accuracy: 83.3 },
+    ]
+  };
+
+  const promptOptions = [
+    { value: 'all', label: 'All Prompts' },
+    { value: 'future-returns', label: 'Future Returns Detection v2.2' },
+    { value: 'investment-advice', label: 'Investment Advice Filter v3.1' },
+    { value: 'fdic-insurance', label: 'FDIC Insurance Checker v1.5' },
+  ];
+
+  const getChartData = () => {
+    return promptPerformanceData[selectedPrompt as keyof typeof promptPerformanceData] || promptPerformanceData.all;
   };
 
   // Prompt and disclaimer combinations with their metrics
@@ -243,8 +389,22 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
 
             {/* Monthly Trend */}
             <Card>
-              <CardHeader>
-                <CardTitle>30-Day Performance Trend</CardTitle>
+              <CardHeader className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle>30-Day Performance Trend</CardTitle>
+                  <Select value={selectedPrompt} onValueChange={setSelectedPrompt}>
+                    <SelectTrigger className="w-64 bg-background border z-50">
+                      <SelectValue placeholder="Select a prompt" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border z-50">
+                      {promptOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </CardHeader>
               <CardContent>
                 <ChartContainer
@@ -265,38 +425,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                   className="h-64"
                 >
                   <LineChart
-                    data={[
-                      { day: "Dec 18", recall: 82, specificity: 85, accuracy: 83 },
-                      { day: "Dec 19", recall: 83, specificity: 86, accuracy: 84 },
-                      { day: "Dec 20", recall: 84, specificity: 87, accuracy: 85 },
-                      { day: "Dec 21", recall: 85, specificity: 88, accuracy: 86 },
-                      { day: "Dec 22", recall: 86, specificity: 89, accuracy: 87 },
-                      { day: "Dec 23", recall: 87, specificity: 90, accuracy: 88 },
-                      { day: "Dec 24", recall: 88, specificity: 91, accuracy: 89 },
-                      { day: "Dec 25", recall: 89, specificity: 92, accuracy: 90 },
-                      { day: "Dec 26", recall: 90, specificity: 93, accuracy: 91 },
-                      { day: "Dec 27", recall: 91, specificity: 94, accuracy: 92 },
-                      { day: "Dec 28", recall: 92, specificity: 95, accuracy: 93 },
-                      { day: "Dec 29", recall: 93, specificity: 96, accuracy: 94 },
-                      { day: "Dec 30", recall: 94, specificity: 97, accuracy: 95 },
-                      { day: "Dec 31", recall: 95, specificity: 98, accuracy: 96 },
-                      { day: "Jan 1", recall: 96, specificity: 99, accuracy: 97 },
-                      { day: "Jan 2", recall: 97, specificity: 100, accuracy: 98 },
-                      { day: "Jan 3", recall: 98, specificity: 99, accuracy: 98.5 },
-                      { day: "Jan 4", recall: 99, specificity: 98, accuracy: 98.5 },
-                      { day: "Jan 5", recall: 100, specificity: 97, accuracy: 98.5 },
-                      { day: "Jan 6", recall: 99.5, specificity: 96, accuracy: 97.8 },
-                      { day: "Jan 7", recall: 99, specificity: 95, accuracy: 97 },
-                      { day: "Jan 8", recall: 98.5, specificity: 94, accuracy: 96.3 },
-                      { day: "Jan 9", recall: 98, specificity: 93, accuracy: 95.5 },
-                      { day: "Jan 10", recall: 97.5, specificity: 92, accuracy: 94.8 },
-                      { day: "Jan 11", recall: 97, specificity: 91, accuracy: 94 },
-                      { day: "Jan 12", recall: 96.5, specificity: 90, accuracy: 93.3 },
-                      { day: "Jan 13", recall: 96, specificity: 89, accuracy: 92.5 },
-                      { day: "Jan 14", recall: 95.5, specificity: 88, accuracy: 91.8 },
-                      { day: "Jan 15", recall: 95, specificity: 87, accuracy: 91 },
-                      { day: "Jan 16", recall: 94.5, specificity: 86, accuracy: 90.3 },
-                    ]}
+                    data={getChartData()}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
                     <defs>

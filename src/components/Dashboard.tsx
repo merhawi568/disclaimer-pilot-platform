@@ -251,51 +251,69 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                   config={{
                     recall: {
                       label: "Recall",
-                      color: "hsl(var(--chart-1))",
+                      color: "hsl(220, 70%, 50%)",
                     },
                     specificity: {
                       label: "Specificity", 
-                      color: "hsl(var(--chart-2))",
+                      color: "hsl(142, 76%, 36%)",
+                    },
+                    accuracy: {
+                      label: "Accuracy",
+                      color: "hsl(291, 64%, 42%)",
                     },
                   }}
                   className="h-64"
                 >
                   <LineChart
                     data={[
-                      { day: "Dec 18", recall: 85, specificity: 92 },
-                      { day: "Dec 19", recall: 87, specificity: 89 },
-                      { day: "Dec 20", recall: 83, specificity: 94 },
-                      { day: "Dec 21", recall: 89, specificity: 91 },
-                      { day: "Dec 22", recall: 91, specificity: 88 },
-                      { day: "Dec 23", recall: 88, specificity: 93 },
-                      { day: "Dec 24", recall: 92, specificity: 90 },
-                      { day: "Dec 25", recall: 86, specificity: 95 },
-                      { day: "Dec 26", recall: 90, specificity: 87 },
-                      { day: "Dec 27", recall: 94, specificity: 92 },
-                      { day: "Dec 28", recall: 87, specificity: 89 },
-                      { day: "Dec 29", recall: 93, specificity: 94 },
-                      { day: "Dec 30", recall: 89, specificity: 91 },
-                      { day: "Dec 31", recall: 91, specificity: 93 },
-                      { day: "Jan 1", recall: 88, specificity: 90 },
-                      { day: "Jan 2", recall: 95, specificity: 88 },
-                      { day: "Jan 3", recall: 92, specificity: 95 },
-                      { day: "Jan 4", recall: 87, specificity: 92 },
-                      { day: "Jan 5", recall: 94, specificity: 89 },
-                      { day: "Jan 6", recall: 90, specificity: 94 },
-                      { day: "Jan 7", recall: 89, specificity: 91 },
-                      { day: "Jan 8", recall: 93, specificity: 88 },
-                      { day: "Jan 9", recall: 91, specificity: 96 },
-                      { day: "Jan 10", recall: 96, specificity: 93 },
-                      { day: "Jan 11", recall: 88, specificity: 90 },
-                      { day: "Jan 12", recall: 92, specificity: 94 },
-                      { day: "Jan 13", recall: 94, specificity: 91 },
-                      { day: "Jan 14", recall: 90, specificity: 89 },
-                      { day: "Jan 15", recall: 93, specificity: 95 },
-                      { day: "Jan 16", recall: 95, specificity: 92 },
+                      { day: "Dec 18", recall: 82, specificity: 85, accuracy: 83 },
+                      { day: "Dec 19", recall: 83, specificity: 86, accuracy: 84 },
+                      { day: "Dec 20", recall: 84, specificity: 87, accuracy: 85 },
+                      { day: "Dec 21", recall: 85, specificity: 88, accuracy: 86 },
+                      { day: "Dec 22", recall: 86, specificity: 89, accuracy: 87 },
+                      { day: "Dec 23", recall: 87, specificity: 90, accuracy: 88 },
+                      { day: "Dec 24", recall: 88, specificity: 91, accuracy: 89 },
+                      { day: "Dec 25", recall: 89, specificity: 92, accuracy: 90 },
+                      { day: "Dec 26", recall: 90, specificity: 93, accuracy: 91 },
+                      { day: "Dec 27", recall: 91, specificity: 94, accuracy: 92 },
+                      { day: "Dec 28", recall: 92, specificity: 95, accuracy: 93 },
+                      { day: "Dec 29", recall: 93, specificity: 96, accuracy: 94 },
+                      { day: "Dec 30", recall: 94, specificity: 97, accuracy: 95 },
+                      { day: "Dec 31", recall: 95, specificity: 98, accuracy: 96 },
+                      { day: "Jan 1", recall: 96, specificity: 99, accuracy: 97 },
+                      { day: "Jan 2", recall: 97, specificity: 100, accuracy: 98 },
+                      { day: "Jan 3", recall: 98, specificity: 99, accuracy: 98.5 },
+                      { day: "Jan 4", recall: 99, specificity: 98, accuracy: 98.5 },
+                      { day: "Jan 5", recall: 100, specificity: 97, accuracy: 98.5 },
+                      { day: "Jan 6", recall: 99.5, specificity: 96, accuracy: 97.8 },
+                      { day: "Jan 7", recall: 99, specificity: 95, accuracy: 97 },
+                      { day: "Jan 8", recall: 98.5, specificity: 94, accuracy: 96.3 },
+                      { day: "Jan 9", recall: 98, specificity: 93, accuracy: 95.5 },
+                      { day: "Jan 10", recall: 97.5, specificity: 92, accuracy: 94.8 },
+                      { day: "Jan 11", recall: 97, specificity: 91, accuracy: 94 },
+                      { day: "Jan 12", recall: 96.5, specificity: 90, accuracy: 93.3 },
+                      { day: "Jan 13", recall: 96, specificity: 89, accuracy: 92.5 },
+                      { day: "Jan 14", recall: 95.5, specificity: 88, accuracy: 91.8 },
+                      { day: "Jan 15", recall: 95, specificity: 87, accuracy: 91 },
+                      { day: "Jan 16", recall: 94.5, specificity: 86, accuracy: 90.3 },
                     ]}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <defs>
+                      <linearGradient id="recallGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(220, 70%, 50%)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(220, 70%, 50%)" stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="specificityGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.1}/>
+                      </linearGradient>
+                      <linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(291, 64%, 42%)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="hsl(291, 64%, 42%)" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
                     <XAxis 
                       dataKey="day" 
                       className="text-xs"
@@ -303,7 +321,7 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                       tick={{ fontSize: 10 }}
                     />
                     <YAxis 
-                      domain={[75, 100]}
+                      domain={[75, 105]}
                       className="text-xs"
                       tick={{ fontSize: 10 }}
                     />
@@ -311,20 +329,28 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                       content={<ChartTooltipContent />}
                     />
                     <Line 
-                      type="monotone" 
+                      type="linear" 
                       dataKey="recall" 
-                      stroke="var(--color-recall)" 
-                      strokeWidth={2}
-                      dot={{ fill: "var(--color-recall)", strokeWidth: 2, r: 3 }}
-                      activeDot={{ r: 5 }}
+                      stroke="hsl(220, 70%, 50%)" 
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(220, 70%, 50%)", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: "hsl(220, 70%, 50%)", stroke: "white", strokeWidth: 2 }}
                     />
                     <Line 
-                      type="monotone" 
+                      type="linear" 
                       dataKey="specificity" 
-                      stroke="var(--color-specificity)" 
-                      strokeWidth={2}
-                      dot={{ fill: "var(--color-specificity)", strokeWidth: 2, r: 3 }}
-                      activeDot={{ r: 5 }}
+                      stroke="hsl(142, 76%, 36%)" 
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(142, 76%, 36%)", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: "hsl(142, 76%, 36%)", stroke: "white", strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="linear" 
+                      dataKey="accuracy" 
+                      stroke="hsl(291, 64%, 42%)" 
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(291, 64%, 42%)", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: "hsl(291, 64%, 42%)", stroke: "white", strokeWidth: 2 }}
                     />
                   </LineChart>
                 </ChartContainer>

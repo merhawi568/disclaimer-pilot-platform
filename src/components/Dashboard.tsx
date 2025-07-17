@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { TrendingUp, Users, FileText, AlertTriangle, TestTube, Target, BarChart3, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 interface DashboardProps {
@@ -245,13 +247,87 @@ export const Dashboard = ({ onNavigate }: DashboardProps) => {
                 <CardTitle>30-Day Performance Trend</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64 bg-gray-50 rounded flex items-center justify-center">
-                  <div className="text-center">
-                    <TrendingUp className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">Performance trend chart</p>
-                    <p className="text-xs text-gray-400 mt-1">Recall & Specificity over time</p>
-                  </div>
-                </div>
+                <ChartContainer
+                  config={{
+                    recall: {
+                      label: "Recall",
+                      color: "hsl(var(--chart-1))",
+                    },
+                    specificity: {
+                      label: "Specificity", 
+                      color: "hsl(var(--chart-2))",
+                    },
+                  }}
+                  className="h-64"
+                >
+                  <LineChart
+                    data={[
+                      { day: "Dec 18", recall: 85, specificity: 92 },
+                      { day: "Dec 19", recall: 87, specificity: 89 },
+                      { day: "Dec 20", recall: 83, specificity: 94 },
+                      { day: "Dec 21", recall: 89, specificity: 91 },
+                      { day: "Dec 22", recall: 91, specificity: 88 },
+                      { day: "Dec 23", recall: 88, specificity: 93 },
+                      { day: "Dec 24", recall: 92, specificity: 90 },
+                      { day: "Dec 25", recall: 86, specificity: 95 },
+                      { day: "Dec 26", recall: 90, specificity: 87 },
+                      { day: "Dec 27", recall: 94, specificity: 92 },
+                      { day: "Dec 28", recall: 87, specificity: 89 },
+                      { day: "Dec 29", recall: 93, specificity: 94 },
+                      { day: "Dec 30", recall: 89, specificity: 91 },
+                      { day: "Dec 31", recall: 91, specificity: 93 },
+                      { day: "Jan 1", recall: 88, specificity: 90 },
+                      { day: "Jan 2", recall: 95, specificity: 88 },
+                      { day: "Jan 3", recall: 92, specificity: 95 },
+                      { day: "Jan 4", recall: 87, specificity: 92 },
+                      { day: "Jan 5", recall: 94, specificity: 89 },
+                      { day: "Jan 6", recall: 90, specificity: 94 },
+                      { day: "Jan 7", recall: 89, specificity: 91 },
+                      { day: "Jan 8", recall: 93, specificity: 88 },
+                      { day: "Jan 9", recall: 91, specificity: 96 },
+                      { day: "Jan 10", recall: 96, specificity: 93 },
+                      { day: "Jan 11", recall: 88, specificity: 90 },
+                      { day: "Jan 12", recall: 92, specificity: 94 },
+                      { day: "Jan 13", recall: 94, specificity: 91 },
+                      { day: "Jan 14", recall: 90, specificity: 89 },
+                      { day: "Jan 15", recall: 93, specificity: 95 },
+                      { day: "Jan 16", recall: 95, specificity: 92 },
+                    ]}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="day" 
+                      className="text-xs"
+                      interval="preserveStartEnd"
+                      tick={{ fontSize: 10 }}
+                    />
+                    <YAxis 
+                      domain={[75, 100]}
+                      className="text-xs"
+                      tick={{ fontSize: 10 }}
+                    />
+                    <ChartTooltip 
+                      content={<ChartTooltipContent />}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="recall" 
+                      stroke="var(--color-recall)" 
+                      strokeWidth={2}
+                      dot={{ fill: "var(--color-recall)", strokeWidth: 2, r: 3 }}
+                      activeDot={{ r: 5 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="specificity" 
+                      stroke="var(--color-specificity)" 
+                      strokeWidth={2}
+                      dot={{ fill: "var(--color-specificity)", strokeWidth: 2, r: 3 }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </LineChart>
+                </ChartContainer>
               </CardContent>
             </Card>
           </div>

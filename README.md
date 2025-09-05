@@ -1,73 +1,223 @@
-# Welcome to your Lovable project
+# FinCompliance AI - Financial Disclaimer Testing Platform
 
-## Project info
+A comprehensive AI-powered platform for testing and validating financial disclaimers and regulatory compliance in documents and marketing materials.
 
-**URL**: https://lovable.dev/projects/c49840ce-2e41-4f60-aa7f-78ef31b65a89
+## 🎯 Overview
 
-## How can I edit this code?
+FinCompliance AI is an enterprise-grade solution designed for financial services organizations to ensure regulatory compliance across all customer-facing materials. The platform uses advanced AI models to automatically detect missing or inadequate disclaimers, risk warnings, and regulatory statements in documents, web pages, and marketing materials.
 
-There are several ways of editing your application.
+## ✨ Key Features
 
-**Use Lovable**
+### 🤖 AI-Powered Testing
+- **Smart Disclaimer Detection**: Advanced natural language processing to identify missing or inadequate disclaimers
+- **Multi-Model Support**: Integration with GPT-4o, Claude-3.5-Sonnet, and other leading AI models
+- **Customizable Prompts**: Create and manage custom testing prompts for specific compliance requirements
+- **Performance Metrics**: Detailed accuracy, precision, recall, and specificity measurements
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c49840ce-2e41-4f60-aa7f-78ef31b65a89) and start prompting.
+### 📊 Comprehensive Analytics
+- **Real-time Dashboard**: Live performance tracking with 30-day trends
+- **Interactive Charts**: Filterable performance data by prompt type and date range
+- **Top Performers**: Ranking system for best-performing prompts and disclaimers
+- **Document Statistics**: Comprehensive testing metrics across all processed documents
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🔍 Document Analysis
+- **Multi-format Support**: PDF, HTML, DOCX, TXT, and image files
+- **Visual Recognition**: OCR and image analysis for screenshots and scanned documents
+- **Batch Processing**: Simultaneous testing of multiple documents
+- **Citation Tracking**: Exact text extraction and highlighting of flagged content
 
-**Use your preferred IDE**
+### 👥 Review & Validation System
+- **Manual Review Workflow**: Human validation of AI findings
+- **Grouped Reviews**: Organized by prompt/disclaimer combinations
+- **Approval Process**: Multi-stage approval workflow with comments and feedback
+- **Audit Trail**: Complete history of all review decisions
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 🛠 Administration Panel
+- **User Management**: Role-based access control (Admin, Analyst, Reviewer, Viewer)
+- **Disclaimer Library**: Centralized management of standard disclaimers
+- **Document Sources**: Integration with SharePoint, S3, OneDrive, and Box
+- **AI Model Configuration**: Fine-tune model parameters and performance settings
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 📚 Help & Support
+- **Interactive Documentation**: Comprehensive user guides and API documentation
+- **Video Tutorials**: Step-by-step training materials
+- **FAQ System**: Searchable knowledge base
+- **Live Support**: Integrated chat and ticket system
 
-Follow these steps:
+## 🚀 Technology Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend**: React 18, TypeScript, Vite
+- **UI Framework**: shadcn/ui with Tailwind CSS
+- **State Management**: React Query (TanStack Query)
+- **Routing**: React Router v6
+- **Charts**: Recharts for data visualization
+- **Icons**: Lucide React
+- **Styling**: Responsive design with dark/light mode support
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 📋 Prerequisites
 
-# Step 3: Install the necessary dependencies.
-npm i
+- Node.js 18+ and npm
+- Git
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## 🛠 Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd <YOUR_PROJECT_NAME>
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   Navigate to `http://localhost:8080`
+
+## 📂 Project Structure
+
+```
+src/
+├── components/           # React components
+│   ├── ui/              # shadcn/ui components
+│   ├── help/            # Help system components
+│   ├── review/          # Review workflow components
+│   ├── Admin.tsx        # Administration panel
+│   ├── Dashboard.tsx    # Analytics dashboard
+│   ├── TestDisclaimer.tsx # Testing interface
+│   ├── TestResults.tsx  # Results analysis
+│   ├── Review.tsx       # Review system
+│   └── ...
+├── hooks/               # Custom React hooks
+├── lib/                 # Utility functions
+├── pages/               # Page components
+├── index.css           # Global styles and design system
+└── main.tsx            # Application entry point
 ```
 
-**Edit a file directly in GitHub**
+## 🎨 Design System
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+The application uses a comprehensive design system built with Tailwind CSS:
 
-**Use GitHub Codespaces**
+- **Colors**: HSL-based color palette with semantic tokens
+- **Typography**: Consistent font hierarchy
+- **Spacing**: Standardized spacing scale
+- **Components**: Reusable UI components with variants
+- **Dark Mode**: Full dark/light theme support
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔧 Configuration
 
-## What technologies are used for this project?
+### Environment Setup
+The application supports various configuration options:
 
-This project is built with:
+- **AI Models**: Configure primary and backup AI models
+- **Document Sources**: Set up integrations with cloud storage
+- **User Roles**: Define custom permission levels
+- **Compliance Rules**: Customize disclaimer requirements
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Document Sources
+Supported integrations:
+- Microsoft SharePoint
+- Amazon S3
+- Microsoft OneDrive
+- Box
+- Local file uploads
 
-## How can I deploy this project?
+## 📈 Usage Guide
 
-Simply open [Lovable](https://lovable.dev/projects/c49840ce-2e41-4f60-aa7f-78ef31b65a89) and click on Share -> Publish.
+### 1. Creating a Test
+1. Navigate to "New Test" from the dashboard
+2. Select or create a custom disclaimer
+3. Configure document filters (optional)
+4. Run the test and monitor progress
+5. Review results and analysis
 
-## Can I connect a custom domain to my Lovable project?
+### 2. Reviewing Results
+1. Access test results from the dashboard
+2. Review flagged documents and citations
+3. Use AI analyst recommendations
+4. Provide feedback on accuracy
+5. Submit items for manual review
 
-Yes, you can!
+### 3. Managing Reviews
+1. Access pending reviews from the review panel
+2. Group reviews by prompt/disclaimer combinations
+3. Approve or reject findings with comments
+4. Track review statistics and performance
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### 4. Administration
+1. Manage users and roles
+2. Configure disclaimer library
+3. Set up document sources
+4. Monitor system performance
+5. Access audit logs
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🔒 Security Features
+
+- Role-based access control
+- Audit logging
+- Session management
+- Secure document handling
+- Compliance data protection
+
+## 📊 Performance Metrics
+
+The platform tracks various performance indicators:
+
+- **Recall**: Percentage of actual disclaimers correctly identified
+- **Specificity**: Percentage of non-disclaimers correctly identified
+- **Precision**: Accuracy of positive identifications
+- **Accuracy**: Overall correctness of the system
+- **Confidence Scores**: AI model confidence in predictions
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and ensure quality
+5. Submit a pull request
+
+## 📄 License
+
+This project is proprietary software. All rights reserved.
+
+## 🆘 Support
+
+For technical support and questions:
+
+- **Documentation**: [Internal Knowledge Base]
+- **Help Desk**: Available through the application
+- **Training**: Video tutorials and user guides
+- **Contact**: [Support Team Information]
+
+## 🔄 Updates & Releases
+
+The platform is continuously updated with:
+- New AI model integrations
+- Enhanced compliance rules
+- Performance improvements
+- Security updates
+- Feature enhancements
+
+## 🏢 Enterprise Features
+
+- Multi-tenant architecture
+- SSO integration
+- Advanced analytics
+- Custom compliance rules
+- White-label options
+- API access
+- Premium support
+
+---
+
+**Built for Financial Services Compliance Teams**
+
+This platform is specifically designed for compliance officers, risk managers, and legal teams in financial services organizations who need to ensure all customer communications meet regulatory requirements.
